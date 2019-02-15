@@ -1,0 +1,4 @@
+- hosts: all
+  become_user: root
+  roles:
+    - { role: erpnext, tags: "erpnext" }

@@ -1,0 +1,8 @@
+---
+- name: seafile
+  hosts: all
+  remote_user: root
+
+  roles:
+    - { role: seafile , tags: "seafile" }
+    - { role: mysql , tags: "mysql" }

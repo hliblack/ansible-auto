@@ -1,0 +1,15 @@
+[Unit]
+Description=Seafile
+# add mysql.service or postgresql.service depending on your database to the line below
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/seafile-server/seafile-server/seafile.sh start
+ExecStop=/opt/seafile-server/seafile-server/seafile.sh stop
+RemainAfterExit=yes
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

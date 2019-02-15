@@ -1,0 +1,113 @@
+---
+# 系统更新
+- name: System Upgrade
+  yum: name=* state=latest
+
+# 下载源文件
+- name: Download wordpress which include default theme
+  unarchive:
+    src: "{{ twentynineteen }}"
+    dest: /data/wwwroot
+    remote_src: yes
+    owner: root
+    group: root
+  when: theme == 'twentynineteen'
+
+- name: Download wordpress which include avada theme
+  unarchive:
+    src: "{{ avada }}"
+    dest: /data/wwwroot
+    remote_src: yes
+    owner: root
+    group: root
+  when: theme == 'avada'
+
+- name: Download wordpress which include porto theme
+  unarchive:
+    src: "{{ porto }}"
+    dest: /data/wwwroot
+    remote_src: yes
+    owner: root
+    group: root
+  when: theme == 'porto' 
+
+# 修改默认主题
+
+- name: Replace default theme
+  template:
+    src: default-constants.php
+    dest: /data/wwwroot/wordpress/wp-includes/default-constants.php
+    owner: apache
+    group: apache
+    mode: 0640
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Copy Apache Vhost Configuration
+  template: src=vhost.conf dest=/etc/httpd/vhost/vhost.conf
+  notify: restart Apache
+  when: web == 'apache'
+
+- name: Copy nginx Vhost Configuration
+  template: src=default.conf dest=/etc/nginx/conf.d/default.conf
+  notify: restart nginx
+  when: web == 'nginx'
+
+- name: Copy Apache Vhost Configuration
+  template: src=php.ini dest=/etc/php.ini
+
+- name: Create wordpress databases
+  mysql_db:
+    login_user: root
+    login_password: 123456
+    name: wordpress
+    state: present
+
+- name: Copy WordPress config file
+  template: src=wp-config.php dest=/data/wwwroot/wordpress/ owner=apache group=apache
+
+- name: Copy databases initialization
+  copy:
+    src: init.sh
+    dest: /root
+    mode: 0770
+
+- name: initialization Script Start
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0770
+
+
+- name: Change 9panel 
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: '{"appname":"WordPress","switch":0,'
+    line: '{"appname":"WordPress","switch":1,'
+
+- name: Change Permission of directory for Apache
+  file: 
+    path: /data/wwwroot
+    owner: apache
+    group: apache
+    recurse: yes
+  when: web == 'apache'
+
+- name: Change Permission of directory for Nginx
+  file: 
+    path: /data/wwwroot
+    owner: nginx
+    group: nginx
+    recurse: yes
+  when: web == 'nginx'
+
+- name: Permission directory 750
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file 640
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+

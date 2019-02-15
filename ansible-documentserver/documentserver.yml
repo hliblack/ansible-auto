@@ -1,0 +1,7 @@
+---
+- name: OnlyOfiice Documen Server
+  hosts: all
+  remote_user: root
+  roles:
+    - { role: documentserver , tags: "documentserver"} 
+    - { role: nginx , tags: "nginx"} 

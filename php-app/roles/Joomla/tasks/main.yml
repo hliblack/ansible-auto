@@ -1,0 +1,57 @@
+---
+# Joomla
+# 请使用 LAMP71 以上版本 
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+
+  
+- name: Create Joomla folder
+  file:
+    path: /data/wwwroot/joomla
+    state: directory
+    mode: 0750
+
+- name: Download Joomla
+  unarchive:
+    src: "{{ Joomla }}"
+    dest: /data/wwwroot/joomla
+    owner: apache
+    group: apache
+    remote_src: yes
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Create Joomla databases
+  mysql_db:
+    login_user: root
+    login_password: 123456
+    name: joomla
+    state: present
+
+- name: Copy PHP Config file
+  template: src=php.ini dest=/etc/php.ini
+  notify: restart Apache
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+  notify: restart Apache
+
+- name: Change 9panel
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: '{"appname":"Joomla","switch":0,'
+    line: '{"appname":"Joomla","switch":1,'
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest

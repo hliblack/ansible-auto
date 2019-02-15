@@ -1,0 +1,51 @@
+---
+# Dolibarr
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+  
+- name: Download Dolibarr
+  unarchive:
+    src: "{{ Dolibarr }}"
+    dest: /data/wwwroot
+    remote_src: yes
+    owner: apache
+    group: apache
+
+- name: Rename floder name
+  shell: mv /data/wwwroot/dolibarr-* /data/wwwroot/dolibarr
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Create Dolibarr databases
+  mysql_db:
+    login_user: root
+    login_password: 123456
+    name: dolibarr
+    state: present
+
+- name: Change database Unicode
+  shell: mysql -uroot -p123456 -e "ALTER DATABASE \`dolibarr\` CHARACTER SET utf8; "
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+  notify: restart Apache
+
+- name: Change 9panel
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: '{"appname":"Dolibarr","switch":0,'
+    line: '{"appname":"Dolibarr","switch":1,'
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest

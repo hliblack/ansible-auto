@@ -1,0 +1,35 @@
+- name: Install Nginx
+  yum: 
+    name: nginx
+    state: latest
+
+- name: Create directory of certificate 
+  file: 
+      path: /data/cert
+      state: directory
+
+- name: Copy Nginx Configuration 
+  template:
+    src: nginx.conf 
+    dest: /etc/nginx
+  notify: restart nginx
+
+- name: Copy Nginx other Configuration
+  template: 
+    src:  default.conf
+    dest: /etc/nginx/conf.d
+  notify: restart nginx
+
+# - block:
+#   - name: Install Certbot
+#     yum:
+#       name: [certbot,certbot-nginx]
+#   rescue:
+#    - name: fix error
+#      pip:
+#        name: [requests==2.6.0,urllib3]
+#        extra_args: --upgrade --force-reinstall
+#   always:
+#     - name: Install Certbot
+#       yum:
+#         name: [certbot,certbot-nginx]

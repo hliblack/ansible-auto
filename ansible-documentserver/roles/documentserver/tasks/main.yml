@@ -1,0 +1,37 @@
+# System upgrade
+- name: System upgrade
+  yum:
+    name: '*'
+    state: latest
+
+- name: Install docker 
+  yum:
+    name: docker
+    state: latest
+
+- name: start docker
+  service: 
+    name: docker 
+    state: started 
+    enabled: yes
+
+- name: Install docker-py
+  pip:
+    name: docker-py
+    state: latest
+
+- name: pull onlyoffice/documentserver image
+  docker_image:
+    name: onlyoffice/documentserver
+
+
+- name: Run onlyoffice/documentserver
+  docker_container:
+    name: documentserver
+    image: onlyoffice/documentserver
+    restart_policy: always
+    ports: 
+      - "8080:80"
+    volumes: 
+      - /app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice
+      - /app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data

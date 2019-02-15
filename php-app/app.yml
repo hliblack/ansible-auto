@@ -1,0 +1,37 @@
+---
+- name: app
+  hosts: all
+  remote_user: root
+  vars:
+    web: "apache"
+  roles: 
+    - { role: zentaoPMS , tags: "zentaopms"} 
+    - { role: ranzhi , tags: "ranzhi"} 
+    - { role: chanzhiESP , tags: "chanzhiesp"} 
+    - { role: moodle, tags: "moodle"}
+    - { role: owncloud, tags: "owncloud"}
+    - { role: nextcloud, tags: "nextcloud"}
+    - { role: discuz, tags: "discuz"}
+    - { role: EmpireCMS, tags: "empirecms"}
+    - { role: KODExplorer, tags: "kodcloud"}
+    - { role: MantisBT, tags: "mantisbt"}
+    - { role: EspoCRM, tags: "espocrm"}
+    - { role: Drupal, tags: "drupal"}
+    - { role: OpenCart, tags: "opencart"}
+    - { role: Joomla, tags: "joomla"}
+    - { role: Zurmo, tags: "zurmo"}
+    - { role: Pydio, tags: "pydio"}
+    - { role: Dolibarr, tags: "dolibarr"}
+    - { role: VtigerCRM, tags: "vtigercrm"}
+    - { role: SuiteCRM, tags: "suitecrm"}
+    - { role: prestashop, tags: "prestashop"}
+    - { role: MediaWiki, tags: "mediawiki"}
+    - { role: ThinkPHP, tags: "thinkphp" }
+    - { role: ThinkCMF, tags: "thinkcmf" }
+    - { role: OneThink, tags: "onethink" }
+    - { role: Laravel, tags: "laravel" }
+    - { role: Magento, tags: "magento" }
+    - { role: dzzoffice, tags: "dzzoffice" }
+    - { role: ResourceSpace, tags: "resourcespace" }
+    - { role: CmsEasy, tags: "cmseasy" }
+    - { role: symfony, tags: "symfony" }

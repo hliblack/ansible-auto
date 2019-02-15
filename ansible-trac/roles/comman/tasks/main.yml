@@ -1,0 +1,10 @@
+- name: upgrade pip
+  shell: pip install --upgrade pip
+
+- name: install subversion
+  apt: name=subversion state=latest
+
+- name: install other Python Packages 
+  pip:
+    name: [Babel, docutils, Pygments, pytz]
+    steat: latest

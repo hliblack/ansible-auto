@@ -1,0 +1,4 @@
+---
+- name: restart gitlab
+  command: gitlab-ctl restart
+

@@ -1,0 +1,28 @@
+
+- name: Enable Remi
+  command: yum-config-manager --enable remi
+  when: phpver != 54  
+
+- name: Install phpMyAdmin
+  yum: name=phpmyadmin state=latest
+
+- name: Create phpMyAdmin Databases
+  mysql_db: 
+    config_file: /etc/my.cnf
+    login_user: root
+    login_password: 123456
+    name: phpmyadmin
+    state: present
+
+- name: Active phpMyAdmin Advanced Features
+  mysql_db:
+    config_file: /etc/my.cnf
+    login_user: root
+    login_password: 123456
+    name: phpmyadmin
+    state: import
+    target: /usr/share/phpMyAdmin/sql/create_tables.sql
+
+- name: Copy phpMyAdmin Configuration
+  copy: src=phpMyAdmin.conf dest=/etc/httpd/conf.d/
+  notify: restart Apache

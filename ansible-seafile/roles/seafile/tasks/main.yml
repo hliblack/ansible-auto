@@ -1,0 +1,138 @@
+- include_vars: '{{ item }}'
+  with_first_found:
+    - files:
+        - 'default.yml'
+      paths: '../vars'
+
+- name: System Upgrade
+  yum:
+    name: '*'
+    state: latest
+
+- name: Create /opt/seafile-server directory
+  file:
+    path: /opt/seafile-server
+    state: directory
+    mode: 0755
+
+- name: Download Seafile
+  unarchive:
+    src: '{{ seafile }}'
+    dest: /opt/seafile-server
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0755
+  
+- name: Rename folder's name
+  shell: mv /opt/seafile-server/seafile-server-* /opt/seafile-server/seafile-server
+
+- name: Create installed folder
+  file:
+    path: /opt/seafile-server/installed
+    state: directory
+
+- name: Save Seafile file to installed
+  shell: wget -O /opt/seafile-server/installed/seafile-server_6.3.3_x86-64.tar.gz "{{ seafile }}" 
+
+- name: Installl Requirement soft
+  yum:
+    name: epel-release
+    state: latest
+
+- name: add GPG-KEY
+  rpm_key:
+    state: present
+    key: http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro
+
+- name: Installnux-dextop respority
+  yum: 
+    name: http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-1.el7.nux.noarch.rpm
+    state: present
+
+- name: Install python dependence tools
+  yum: 
+    name: [python-imaging, MySQL-python, python-memcached, python-ldap, ffmpeg, ffmpeg-devel]
+    state: latest
+
+- name: upgrade pip
+  shell: pip install --upgrade pip
+
+- name: pip install setuptools
+  shell: pip install setuptools==33.1.1
+
+- name: pip install pillow moviepy
+  pip:
+    name: pillow 
+
+- name: pip install moveipy
+  pip:
+    name: moviepy
+
+- name: Install nginx
+  yum: 
+    name: nginx
+    state: latest
+
+- name: copy seafile.conf 
+  template:
+    src: seafile.conf
+    dest: /etc/nginx/conf.d/
+  
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+
+- name: take Memcached effect -1 Install dependence soft
+  yum:
+    name: [gcc, libffi-devel, python-devel, openssl-devel, libmemcached, libmemcached-devel]
+    state: present
+
+- name: take Memcached effect -2 pip install pylibmc django-pylibmc
+  pip:
+    name: [pylibmc, django-pylibmc]
+
+- name: take Memcached effect -3 copy configuration
+  template:
+    src: seahub_settings.py
+    dest: /root/
+
+# - name: take Memcached effect -4 copy configuration
+#   shell: cat /root/seahub_settings.py >> /opt/seafile-server/conf/seahub_settings.py
+
+- name: add seafile.service
+  template:
+      src: seafile.service
+      dest: /etc/systemd/system/
+- name: add seahub.service
+  template:
+      src: seahub.service
+      dest: /etc/systemd/system/
+- name: add seafile-client.service 
+  template:
+      src: seafile-client.service
+      dest: /etc/systemd/system/
+
+# - name: Set Start-up automatically
+#   service:
+#       name: seafile
+#       state: restarted
+#       enable: yes
+
+# - name: Set Start-up automatically
+#   service:
+#       name: seahub
+#       state: restarted
+#       enable: yes
+
+# - name: Set Start-up automatically
+#   service:
+#       name: seafile-client
+#       state: restarted
+#       enable: yes
+
+
+
+

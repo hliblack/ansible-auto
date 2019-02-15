@@ -1,0 +1,17 @@
+# Ubuntu图形化工具
+- name: System Upgrade 
+  apt: 
+    name: *
+    state: latest
+    autoremove: yes
+
+- name: Install Ubuntu-desktop
+  apt:
+    name: [ubuntu-desktop, xfce4, gnome-panel]
+    state: latest
+
+- name: Install Xrdg
+  apt: 
+    name: xrdg
+    state: latest
+

@@ -1,0 +1,10 @@
+---
+- name: reviewboard
+  hosts: all
+  remote_user: root
+
+  roles:
+    - { role: apache2, tags: "apache2" }
+    - { role: mysql, tags: "mysql" }
+    - { role: reviewboard, tags: "reviewboard" }
+    - { role: install, tags: "install" }

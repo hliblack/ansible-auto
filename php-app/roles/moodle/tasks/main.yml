@@ -1,0 +1,44 @@
+---
+# Moodle-LMS
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+
+  
+- name: Download Moodle-LMS
+  unarchive:
+    src: "{{ Moodle }}"
+    dest: /data/wwwroot
+    owner: apache
+    group: apache
+    remote_src: yes
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Copy MySQL Config
+  template: src=my.cnf dest=/etc/my.cnf
+  notify: restart MySQL
+
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+  notify: restart Apache
+
+- name: Change 9panel
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: '{"appname":"Moodle","switch":0,'
+    line: '{"appname":"Moodle","switch":1,'
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest

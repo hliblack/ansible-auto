@@ -1,0 +1,51 @@
+---
+# Pydio
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+  
+- name: Download Pydio
+  unarchive:
+    src: "{{ Pydio }}"
+    dest: /data/wwwroot
+    owner: apache
+    group: apache
+    remote_src: yes
+
+- name: Rename folder 
+  shell: mv /data/wwwroot/pydio-* /data/wwwroot/pydio
+  
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Create Pydio databases
+  mysql_db:
+    login_user: root
+    login_password: 123456
+    name: pydio
+    state: present
+
+- name: Copy PHP Config 
+  copy: src=php.ini dest=/etc 
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+  notify: restart Apache 
+
+- name: Change 9panel
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: '{"appname":"Pydio","switch":0,'
+    line: '{"appname":"Pydio","switch":1,'
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest

@@ -1,0 +1,11 @@
+---
+- name: System Upgrade
+  apt:
+    name: '*'
+    state: latest
+
+- name: download install.py
+  shell: wget -o ~/install.py https://raw.githubusercontent.com/frappe/bench/master/playbooks/install.py
+
+- name: run install.py
+  shell: sudo python install.py --production --user frappe

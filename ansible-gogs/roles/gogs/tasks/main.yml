@@ -1,0 +1,37 @@
+- include_vars: '{{ item }}'
+  with_first_found:
+    - files:
+        - 'default.yml'
+      paths: '../vars'
+
+- name: Create Directory
+  file:
+    path: /data/wwwroot/
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Download gogs
+  unarchive:
+    src: '{{ gogs }}'
+    dest: /data/wwwroot/
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0755
+
+- name: start-up automatically -1
+  template:
+    src: gogs.service
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+    mode: 0755
+
+- name: start-up automatically -2
+  service:
+    name: gogs
+    state: restarted
+    enabled: yes
+

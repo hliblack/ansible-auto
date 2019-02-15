@@ -1,0 +1,2 @@
+- name: create reivewboard website
+  shell: rb-site install /var/www/reviews.example.com

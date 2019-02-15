@@ -1,0 +1,17 @@
+[Unit]
+Description=Seafile client
+# Uncomment the next line you are running seafile client on the same computer as server
+# After=seafile.service
+# Or the next one in other case
+# After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/seaf-cli start
+ExecStop=/usr/bin/seaf-cli stop
+RemainAfterExit=yes
+User=seafile
+Group=seafile
+
+[Install]
+WantedBy=multi-user.target

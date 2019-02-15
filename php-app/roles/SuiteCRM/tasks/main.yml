@@ -1,0 +1,72 @@
+---
+# VtigerCRM
+# - import_tasks: install.yml
+#   when: 
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+
+  
+- name: Download SuiteCRM
+  unarchive:
+    src: "{{ SuiteCRM }}"
+    dest: /data/wwwroot
+    owner: apache
+    group: apache
+    remote_src: yes
+
+- name: Rename SuiteCRM Directory
+  shell: mv /data/wwwroot/SuiteCRM-* /data/wwwroot/suitecrm
+
+- name: fix Directory Permissions
+  file:
+    path: /data/wwwroot/suitecrm
+    state: directory
+    owner: apache
+    recurse: yes
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+
+- name: Copy PHP.ini
+  copy:
+    src: php.ini
+    dest: /etc/
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+  notify: restart Apache
+
+- name: Change 9panel
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: '{"appname":"SuiteCRM","switch":0,'
+    line: '{"appname":"SuiteCRM","switch":1,'
+
+  
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest
+
+
+- name: Add cron job for SuiteCRM
+  cron:
+    name: SuiteCRM
+    user: apache
+    job: "*    *    *    *    *     cd /data/wwwroot/suitecrm; php -f cron.php > /dev/null 2>&1"
+
+
+- name: Add cron job for SuiteCRM
+  cron:
+    name: SuiteCRM1
+    user: apache
+    job: "sudo crontab -e -u apache"
