@@ -1,0 +1,34 @@
+- name: system upgrade
+  apt:
+    name: '*'
+    state: latest
+    force_apt_get: True
+
+- name: install nginx
+  apt:
+    name: nginx
+    state: latest
+
+- name: delete default configuration file
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Create WebSite directory
+  file: 
+      path: /data/wwwroot/trac/trac
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: 0755
+
+- name: Create cert directory
+  file: 
+      path: /data/cert
+      state: directory
+
+- name: start nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

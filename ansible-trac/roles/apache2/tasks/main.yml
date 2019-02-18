@@ -8,7 +8,7 @@
 
 - name: Install apache2
   apt:
-    name: [apache2, python-pip, libapache2-mod-wsgi]
+    name: [apache2, python-pip, libapache2-mod-python, libapache2-mod-python-doc]
     state: latest
 
 - name: Remove default 000-default.conf -2
@@ -16,10 +16,15 @@
     path: /etc/apache2/sites-available/000-default.conf
     state: absent
 
-- name: install libapache2-mod-python libapache2-mod-python-doc
-  apt:
-    name: [libapache2-mod-python, libapache2-mod-python-doc]
-    state: latest
+- name: Remove default 000-default.conf -2
+  file: 
+    path: /etc/apache2/sites-enabled/000-default.conf
+    state: absent
+
+# - name: install libapache2-mod-python libapache2-mod-python-doc
+#   apt:
+#     name: [libapache2-mod-python, libapache2-mod-python-doc]
+#     state: latest
 
 - name: enable apache2-mod-python
   shell: a2enmod python
@@ -27,7 +32,7 @@
 
 - name: create directory of trac
   file: 
-    path: /var/www/trac
+    path: /var/www/trac/trac
     state: directory
     owner: www-data
     group: www-data

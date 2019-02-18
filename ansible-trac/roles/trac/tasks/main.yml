@@ -9,7 +9,7 @@
 
 - name: install other Python Packages 
   pip:
-    name: [genshi, Babel, docutils, Pygments, pytz]
+    name: [genshi, Babel, docutils, Pygments, pytz, gunicorn]
     state: latest
 
 - name: install trac
@@ -33,18 +33,36 @@
 - name: Create Project Environment
   shell: expect ~/trac.exp
 
+# - name: deploy
+#   shell: trac-admin /data/wwwroot/trac/trac deploy /data/wwwroot/trac/
+
 - name: delete ~/trac.exp
   file:
     path: /root/trac.exp
     state: absent
 
-- name: set apache 
+- name: create tracwsgi.py
   template:
-      src: vhost.conf.j2
-      dest: /etc/apache2/sites-available/vhost.conf
+    src: tracwsgi.py
+    dest: /data/wwwroot/trac/tracwsgi.py
 
-- name: restart apache
+- name: gnuicorn
+  shell: cd /data/wwwroot/trac/ && gunicorn -D -w2 tracwsgi:application -b localhost:8000
+
+- name: copy trac configuration file
+  template:
+      src: trac
+      dest: /etc/nginx/sites-available/trac
+      mode: 0644
+
+- name: create soft link for trac
+  file: 
+    src: /etc/nginx/sites-available/trac
+    dest: /etc/nginx/sites-enabled/trac
+    state: link
+    
+- name: restart nginx
   service:
-      name: apache2
+      name: nginx
       state: restarted
-  
+

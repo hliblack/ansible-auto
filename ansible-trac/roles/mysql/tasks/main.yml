@@ -9,13 +9,20 @@
     name: [mysql-server-5.7, libmysqlclient-dev]
     state: latest
 
-# - name: copy mysqld.cnf
-#   template:
-#     src: mysqld.cnf
-#     dest: /etc/mysql/mysql.conf.d/
-#     owner: root
-#     group: root
-#     mode: 0644
+- name: Create Databases Directory
+  file:
+    path: /data/mysql
+    state: directory
+    owner: mysql
+    group: mysql
+
+- name: copy mysqld.cnf
+  template:
+    src: mysqld.cnf.j2
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+    owner: root
+    group: root
+    mode: 0644
 
 - name: restart mysql
   service:
