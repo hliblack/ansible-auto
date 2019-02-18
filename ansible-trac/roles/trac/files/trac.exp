@@ -1,0 +1,10 @@
+#!/usr/bin/expect -f
+set timeout 30
+set projectname trac
+set database mysql://root:123456@localhost:3306/trac
+spawn sudo -u www-data trac-admin /var/www/trac initenv 
+expect {
+"Project]>" { send "$projectname\r";exp_continue }
+"db]>" { send "$database\r" }
+}
+interact

@@ -1,0 +1,50 @@
+- name: upgrade pip
+  shell: pip install --upgrade pip
+
+- name: install subversion
+  apt: name=subversion state=latest
+
+- name: install python-dev
+  apt: name=python-dev state=latest
+
+- name: install other Python Packages 
+  pip:
+    name: [genshi, Babel, docutils, Pygments, pytz]
+    state: latest
+
+- name: install trac
+  pip:
+    name: [trac, mysql-python]
+    state: latest
+
+- name: touch shell script
+  copy:
+    src: trac.exp
+    dest: /root/trac.exp
+    owner: root
+    group: root
+    mode: 0755
+
+- name: install expect
+  apt:
+    name: expect
+    state: latest
+
+- name: Create Project Environment
+  shell: expect ~/trac.exp
+
+- name: delete ~/trac.exp
+  file:
+    path: /root/trac.exp
+    state: absent
+
+- name: set apache 
+  template:
+      src: vhost.conf.j2
+      dest: /etc/apache2/sites-available/vhost.conf
+
+- name: restart apache
+  service:
+      name: apache2
+      state: restarted
+  

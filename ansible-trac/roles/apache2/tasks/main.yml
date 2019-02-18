@@ -15,3 +15,21 @@
   file: 
     path: /etc/apache2/sites-available/000-default.conf
     state: absent
+
+- name: install libapache2-mod-python libapache2-mod-python-doc
+  apt:
+    name: [libapache2-mod-python, libapache2-mod-python-doc]
+    state: latest
+
+- name: enable apache2-mod-python
+  shell: a2enmod python
+  notify: restart apache2
+
+- name: create directory of trac
+  file: 
+    path: /var/www/trac
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0755
+

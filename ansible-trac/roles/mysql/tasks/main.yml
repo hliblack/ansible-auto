@@ -29,5 +29,8 @@
 - name: flush privileges
   shell: mysql -uroot -e "flush privileges;"
 
+- name: create database
+  shell: mysql -uroot -p123456 -e "CREATE DATABASE trac CHARACTER SET utf8 COLLATE utf8_bin;"
+
 
 

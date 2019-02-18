@@ -1,0 +1,9 @@
+---
+- name: trac
+  hosts: all
+  remote_user: root
+
+  roles:
+    - { role: apache2, tags: apache2}
+    - { role: mysql, tags: mysql }
+    - { role: trac, tags: trac }

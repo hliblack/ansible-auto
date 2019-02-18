@@ -1,0 +1,22 @@
+<VirtualHost *:80>
+    ServerName www.example.com
+#    ServerAdmin admin@admin.com
+    DocumentRoot /var/www/trac/trac
+    <Location />
+        SetHandler mod_python
+        PythonInterpreter main_interpreter
+        PythonHandler trac.web.modpython_frontend
+        PythonOption TracEnv /var/www/trac/trac
+        PythonOption TracUriRoot /
+        SetEnv PYTHON_EGG_CACHE /tmp
+    </Location>
+    <Location /login>
+        AuthType Basic
+        AuthName "CMET_WZU Trac Server"
+        AuthUserFile /var/www/trac/.htpasswd
+        Require valid-user
+    </Location>
+
+    ErrorLog "/var/log/apache2/trac_errors.log"
+    CustomLog "/var/log/apache2/trac_accesses.log" common
+</VirtualHost>
