@@ -9,14 +9,9 @@
     name: nginx
     state: latest
 
-- name: delete default configuration file
-  file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
-
 - name: Create WebSite directory
   file: 
-      path: /data/wwwroot/trac/trac
+      path: /data/wwwroot/trac
       state: directory
       owner: www-data
       group: www-data

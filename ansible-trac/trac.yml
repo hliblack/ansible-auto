@@ -4,7 +4,8 @@
   remote_user: root
 
   roles:
+    - { role: common, tags: common }
     - { role: nginx, tags: nginx }
-    - { role: apache2, tags: apache2}
+    # - { role: apache2, tags: apache2}
     - { role: mysql, tags: mysql }
     - { role: trac, tags: trac }

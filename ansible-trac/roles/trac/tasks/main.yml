@@ -1,11 +1,11 @@
 - name: upgrade pip
   shell: pip install --upgrade pip
 
-- name: install subversion
-  apt: name=subversion state=latest
-
-- name: install python-dev
-  apt: name=python-dev state=latest
+- name: install subversion python-dev libmysqlclient-dev python-pexpect
+  apt: 
+    name: [subversion, python-dev, libmysqlclient-dev, python-pexpect, python-passlib]
+    state: latest
+    update-cache: yes
 
 - name: install other Python Packages 
   pip:
@@ -25,44 +25,57 @@
     group: root
     mode: 0755
 
-- name: install expect
-  apt:
-    name: expect
-    state: latest
-
 - name: Create Project Environment
   shell: expect ~/trac.exp
-
-# - name: deploy
-#   shell: trac-admin /data/wwwroot/trac/trac deploy /data/wwwroot/trac/
 
 - name: delete ~/trac.exp
   file:
     path: /root/trac.exp
     state: absent
 
+# - name: Create Project Environment of trac
+#   expect:
+#     command: trac-admin /data/wwwroot/trac initenv
+#     responses:
+#       '[My Project]': 'trac'
+#       '[sqlite:db/trac.db]': 'mysql://root:123456@localhost:3306/trac'
+#     timeout: 60
+#     echo: yes
+
 - name: create tracwsgi.py
   template:
     src: tracwsgi.py
     dest: /data/wwwroot/trac/tracwsgi.py
+    mode: 0640
 
-- name: gnuicorn
-  shell: cd /data/wwwroot/trac/ && gunicorn -D -w2 tracwsgi:application -b localhost:8000
+- name: generate user and password
+  htpasswd:
+    path: /etc/nginx/conf.d/users
+    name: admin
+    password: admin
+    owner: root
+    group: root
+    mode: 0640
 
-- name: copy trac configuration file
+- name: Create Trac PID Dir
+  file:
+    path: /run/trac
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: create trac.service
   template:
-      src: trac
-      dest: /etc/nginx/sites-available/trac
-      mode: 0644
+    src: trac.service
+    dest: /lib/systemd/system/trac.service
+    mode: 0644
+  notify: start trac
 
-- name: create soft link for trac
-  file: 
-    src: /etc/nginx/sites-available/trac
-    dest: /etc/nginx/sites-enabled/trac
-    state: link
-    
-- name: restart nginx
-  service:
-      name: nginx
-      state: restarted
+- name: copy trac's nginx configuration file
+  template:
+      src: default
+      dest: /etc/nginx/sites-available/default
+      mode: 0644
+  notify: restart nginx
 
