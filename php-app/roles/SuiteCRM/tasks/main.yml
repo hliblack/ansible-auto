@@ -62,7 +62,7 @@
   cron:
     name: SuiteCRM
     user: apache
-    job: "*    *    *    *    *     cd /data/wwwroot/suitecrm; php -f cron.php > /dev/null 2>&1"
+    job: "cd /data/wwwroot/suitecrm; php -f cron.php > /dev/null 2>&1"
 
 
 - name: Add cron job for SuiteCRM
@@ -70,3 +70,17 @@
     name: SuiteCRM1
     user: apache
     job: "sudo crontab -e -u apache"
+  notify: restart Apache
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

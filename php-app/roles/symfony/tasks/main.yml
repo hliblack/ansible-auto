@@ -19,12 +19,6 @@
 - name: Replace Composer repo.packagist to internal repo.packagist
   shell: composer config -g repo.packagist composer https://packagist.phpcomposer.com
 
-# - name: Install symfony
-#   composer:
-#       command: create-project
-#       arguments: symfony/website-skeleton
-#       working_dir: /data/wwwroot/
-
 - name: Install symfony
   shell: composer create-project symfony/skeleton symfony
   args:
@@ -72,3 +66,16 @@
 
 - name: System Upgrade
   yum: name=* state=latest
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

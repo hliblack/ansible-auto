@@ -41,7 +41,6 @@
     regexp: '{"appname":"Prestashop","switch":0,'
     line: '{"appname":"Prestashop","switch":1,'
 
-  
 - name: Permission directory
   shell: find /data/wwwroot -type d -exec chmod 750 {} \;
   
@@ -50,3 +49,16 @@
 
 - name: System Upgrade
   yum: name=* state=latest
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

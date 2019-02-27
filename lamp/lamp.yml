@@ -4,9 +4,9 @@
   remote_user: root
 
   roles:
-    - { role: common , tags: "common"} 
-    - { role: apache , tags: "apache"}
-    - { role: php , tags: "php"}
+    # - { role: common , tags: "common"} 
+    # - { role: apache , tags: "apache"}
+    # - { role: php , tags: "php"}
     - { role: mysql , tags: "mysql"}
     - { role: phpmyadmin , tags: "phpmyadmin"}
     - { role: 9panel , tags: "9panel"}

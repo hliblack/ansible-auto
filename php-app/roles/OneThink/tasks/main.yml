@@ -64,6 +64,18 @@
 - name: Permission file
   shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
 
-
 - name: System Upgrade
   yum: name=* state=latest
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

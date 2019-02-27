@@ -56,11 +56,11 @@ WordPress:      https://wordpress.org/latest.zip
 # Moodle
 Moodle:         https://download.moodle.org/stable36/moodle-latest-36.tgz
 
-# ranzhi
-ranzhi:         http://dl.cnezsoft.com/ranzhi/5.0/ranzhi.5.0.stable.zip
+# ranzhi 然之有中文版和国际版两种版本（.int为国际版）
+ranzhi:         http://dl.cnezsoft.com/ranzhi/5.1/ranzhi.5.1.stable.int.zip
 
-# ZenTaoPMS
-ZenTaoPMS:      http://dl.cnezsoft.com/zentao/11.0/ZenTaoPMS.11.0.stable.zip
+# ZenTaoPMS 禅道有中文版和国际版两种版本（.int为国际版）
+ZenTaoPMS:      http://dl.cnezsoft.com/zentao/11.2/ZenTaoPMS.11.2.stable.int.zip
 
 # chanzhiEPS
 chanzhiEPS:     http://dl.cnezsoft.com/chanzhi/7.4.1/chanzhiEPS.7.4.1.zip

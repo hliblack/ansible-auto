@@ -31,7 +31,6 @@
   yum:
     name: [subversion, ghostscript, ImageMagick, poppler, ]
     state: latest
-   
 
 - name: Install CERT-Forensics-Tool -1 
 #  shell: wget -O https://forensics.cert.org/cert-forensics-tools-release-el7.rpm ~/cert-forensics-tools.rpm
@@ -95,3 +94,16 @@
   
 - name: Permission file
   shell: find /data/wwwroot -not -type d -exec chmod 644 {} \;
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

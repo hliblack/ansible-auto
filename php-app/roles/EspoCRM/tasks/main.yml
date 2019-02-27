@@ -46,13 +46,26 @@
     line: '{"appname":"EspoCRM","switch":1,'
 
 - name: Permission directory
-  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
-  
-- name: Permission file
-  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+  shell: |
+    find /data/wwwroot -type d -exec chmod 750 {} \;
+    find /data/wwwroot -not -type d -exec chmod 640 {} \;
+    echo "* * * * * cd /data/wwwroot/espocrm; /usr/bin/php -f cron.php > /dev/null 2>&1" >> /etc/crontab
 
-- name: create crontab task
-  shell: echo "* * * * * cd /data/wwwroot/espocrm; /usr/bin/php -f cron.php > /dev/null 2>&1" >> /etc/crontab
+# - name: create crontab task
+#   shell: echo "* * * * * cd /data/wwwroot/espocrm; /usr/bin/php -f cron.php > /dev/null 2>&1" >> /etc/crontab
   
 - name: System Upgrade
   yum: name=* state=latest
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750
