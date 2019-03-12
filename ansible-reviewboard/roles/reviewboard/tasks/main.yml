@@ -1,26 +1,18 @@
 - name: Install dependence, memcached
   apt:
-    name: [build-essential, python-dev, libffi-dev, libssl-dev, patch, memcached]
+    name: [build-essential, python-dev, libffi-dev, libssl-dev, patch, memcached, libmysqlclient-dev]
     state: latest
 
 - name: pip upgrade 
   shell: pip install --upgrade pip
 
-- name: install setuptools
-  shell: pip install -U setuptools
-
-- name: Install python-memcached, ReviewBoard
+- name: Install setuptools python-memcached, ReviewBoard
   pip:
-    name: [python-memcached, ReviewBoard]
+    name: [setuptools, python-memcached, ReviewBoard, mysql-python]
     state: present
 
-- name: Installing Database Bindings -1
-  apt:
-    name: python-mysqldb
-    state: latest
-
-- name: Installing Database Bindings -2
-  shell: pip install -U mysql-python
+# - name: Installing Database Bindings -2
+#   shell: pip install -U mysql-python
 
 - name: Install other necesassary soft
   apt:
@@ -40,13 +32,11 @@
     group: root
     mode: 0644
 
-- name: update 
-  shell: apt update
-
 - name: Install helix-p4d
   apt:
     name: helix-p4d
     state: latest
+    update-cache: yes
 
 - name: Install p4python
   pip:

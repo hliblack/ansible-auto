@@ -1,33 +1,76 @@
-- name: System update
-  apt:
-    name: '*'
-    force_apt_get: True
-    state: latest
+---
+- name: Install MySQL
+  apt:  
+    name: mysql-server
 
-- name: Install mysql
-  apt:
-    name: [mysql-server-5.7, libmysqlclient-dev]
-    state: latest
+- name: Change MySQL Directory
+  shell: |
+    systemctl stop mysql
+    rsync -av /var/lib/mysql /data/
+    mv /var/lib/mysql /var/lib/mysql.bak
+    mkdir /var/lib/mysql/mysql -p
+    sed  -i 's/\/var\/lib\/mysql/\/data\/mysql/'  /etc/mysql/mysql.conf.d/mysqld.cnf
+    echo "alias /var/lib/mysql/ -> /data/mysql/," >> /etc/apparmor.d/tunables/alias
+    systemctl restart apparmor
+    systemctl start mysql
 
-# - name: copy mysqld.cnf
-#   template:
-#     src: mysqld.cnf
-#     dest: /etc/mysql/mysql.conf.d/
-#     owner: root
-#     group: root
-#     mode: 0644
+- name: Change MySQL root user password 
+  mysql_user: 
+    name: root 
+    host: localhost
+    password: "{{mysql_password}}"
 
-- name: restart mysql
-  service:
-    name: mysql
-    state: restarted
-    enabled: yes
+- name: Removes all anyelse user accounts
+  mysql_user:
+    login_user: root
+    login_password: "{{mysql_password}}"
+    name: ''
+    host_all: yes
+    state: absent
 
-- name: change root's password
-  shell: mysql -uroot -e "update mysql.user set authentication_string=PASSWORD('123456'), plugin='mysql_native_password' where user='root';"
+- name: Remove hostname user accounts
+  mysql_user: login_user=root login_password={{mysql_password}} name='root' host={{ ansible_nodename }} state=absent
 
-- name: flush privileges
-  shell: mysql -uroot -e "flush privileges;"
+- name: Removes test Databases
+  mysql_db:
+    login_user: root
+    login_password: "{{mysql_password}}"
+    name: test
+    state: absent
+
+- name: Removing privileges on test database
+  command: mysql -uroot -p{{mysql_password}} -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'"
+
+- name: enable remote access I
+  mysql_user: 
+    login_user: root 
+    login_password: "{{mysql_password}}"
+    name: root
+    host: '%'
+    password: "{{mysql_password}}"
+    priv: '*.*:ALL'
+  when: remote 
+
+- name: enable remote access II
+  lineinfile: 
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    regexp: 'bind-address    = 127.0.0.1'
+    line: 'bind-address    = 0.0.0.0'
+  when: remote 
+  notify: restart MySQL
 
 
+- name: create trac database
+  mysql_db:
+      name: reviewboard
+      state: present
+      login_user: root
+      login_password: "{{mysql_password}}"
 
+- name: Write Databases Password
+  shell: echo 'Dtabases root Password:'{{mysql_password}}  > /root/password.txt
+
+- name: Password Text File Permission
+  file:
+    path: /root/password.txt
+    mode: 0640

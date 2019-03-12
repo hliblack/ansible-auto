@@ -1,18 +1,14 @@
 ---
-- name: System Upgrade 
-  apt:
-    name: '*'
-    update_cache: yes
-    force_apt_get: True
-    state: latest
 
 - name: Install apache2
   apt:
     name: [apache2, python-pip, libapache2-mod-wsgi]
     state: latest
 
-- name: Remove default 000-default.conf -2
+- name: Create /data/wwwroot
   file: 
-    path: /etc/apache2/sites-available/000-default.conf
-    state: absent
-
+    path: /data/wwwroot
+    state: directory
+    owner: www-data
+    group: www-data
+ 

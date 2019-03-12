@@ -57,13 +57,6 @@
     group: root
     mode: 0640
 
-- name: Create Trac PID Dir
-  file:
-    path: /run/trac
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
 
 - name: create trac.service
   template:
@@ -79,3 +72,41 @@
       mode: 0644
   notify: restart nginx
 
+- name: Setting rc.local
+  file:
+    path: /etc/rc.local
+    state: touch
+    mode: 0750
+
+- name: Write rc.local
+  shell: echo "#!/bin/bash" > /etc/rc.local
+
+- name: restart rc.local
+  service: name=rc.local state=restarted enabled=yes
+
+- name: Write Databases Password
+  shell: echo 'Databases root Password:'{{mysql_password}}  > /root/password.txt
+
+- name: Password Text File Permission
+  file:
+    path: /root/password.txt
+    mode: 0640
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750
+
+- name: Setting File Permission
+  shell: find /data -type f -exec chmod 640 {} \;
+
+- name: Setting Directory Permission
+  shell: find /data -type d -exec chmod 750 {} \; 

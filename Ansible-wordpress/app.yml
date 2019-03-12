@@ -1,8 +1,9 @@
 ---
 - name: app
   hosts: all
-  remote_user: root
-
+  become: yes
+  become_method: sudo
+  become_user: root
   roles:
     - { role: wordpress , tags: "wordpress"} 
     - { role: wordpress-discuz , tags: "wordpress-discuz" }

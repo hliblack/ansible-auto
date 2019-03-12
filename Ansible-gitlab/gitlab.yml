@@ -1,7 +1,9 @@
 ---
 - name: gitlab
   hosts: all
-  remote_user: root
+  become: yes
+  become_method: sudo
+  become_user: root
 
   roles:
     - { role: gitlab , tags: "gitlab"} 

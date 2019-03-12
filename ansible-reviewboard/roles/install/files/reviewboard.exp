@@ -1,0 +1,39 @@
+#!/usr/bin/expect 
+set timeout 30
+#if {$argc < 15} {
+#    puts "Usage:cmd <DomainName> <RootPath> <DatabaseType> <DatabaseName> <DatabaseServer> <DatabaseUsername> <DatabasePassword> <ConfirmPassword> <MemcacheServer> <Username> <Password> <ConfirmAdminPassword> <EMail> <Company> <CollectData>"
+#    exit 1
+#}
+
+set DomainName www.example.com 
+set DatabaseType 1
+set DatabaseName reviewboard
+set DatabaseUsername root
+set DatabasePassword 123456
+set ConfirmPassword 123456
+set MemcacheServer localhost:11211
+set Username admin
+set Password admin
+set ConfirmAdminPassword admin
+set EMail admin@admin.com
+set CollectData n
+
+spawn rb-site install /data/wwwroot/reviewboard
+expect {
+    "Domain Name" {send "$DomainName\r";exp_continue }
+    "Root Path" {send "\r";exp_continue }
+    "Database Type" {send "$DatabaseType\r";exp_continue }
+    "Database Name" {send "$DatabaseName\r";exp_continue }
+    "Database Server" {send "\r";exp_continue }
+    "Database Username" {send "$DatabaseUsername\r";exp_continue }
+    "Database Password" {send "$DatabasePassword\r";exp_continue }
+    "Confirm Database Password" {send "$ConfirmPassword\r";exp_continue }
+    "Memcache Server" {send "$MemcacheServer\r";exp_continue }
+    "Username" {send "$Username\r";exp_continue }
+    "Password" {send "$Password\r";exp_continue }
+    "Confirm Password" {send "$ConfirmAdminPassword\r";exp_continue }
+    "E-Mail Address" {send "$EMail\r";exp_continue }
+    "Company/Organization" {send "\r";exp_continue }
+    "collect support data" {send "$CollectData\r"}
+}   
+interact 
