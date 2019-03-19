@@ -1,13 +1,11 @@
 ---
-
-- name: APT update
-  command: apt update
-
-- name: Upgrade all packages to the latest version
+- name: System Upgrade
   apt:
     name: "*"
     state: latest
     force_apt_get: True
+    update-cache: yes
+    autoremove: yes
 
 - name: Remove dependencies that are no longer required
   apt:

@@ -65,8 +65,8 @@
 
 - name: Change directory's permission
   shell: |
-    chown -R www-data /data/wwwroot/reviews.example.com/htdocs/media/uploaded
-    chown -R www-data /data/wwwroot/reviews.example.com/data
-    find /data -type d -exec chmod 750 {} \;
-    find /data -type f -exec chmod 640 {} \;
+    chown -R www-data /data/wwwroot/reviewboard/htdocs/media/uploaded
+    chown -R www-data /data/wwwroot/reviewboard/data
+    find /data/wwwroot/ -type d -exec chmod 750 {} \;
+    find /data/wwwroot/ -type f -exec chmod 640 {} \;
   notify: restart apache

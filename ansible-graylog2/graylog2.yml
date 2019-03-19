@@ -7,5 +7,5 @@
 
   roles:
     - { role: common , tags: "common"} 
-    - { role: graylog2, tags: graylog2 }
-    - { role: nginx, tags: nginx }
+    - { role: graylog2, tags: "graylog2" }
+    - { role: nginx, tags: "nginx" }

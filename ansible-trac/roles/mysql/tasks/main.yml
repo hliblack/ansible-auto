@@ -61,3 +61,9 @@
 
 - name: create database
   shell: mysql -uroot -p123456 -e "CREATE DATABASE trac CHARACTER SET utf8 COLLATE utf8_bin;"
+
+- name: Setting File Permission
+  shell: find /data/mysql -type f -exec chmod 640 {} \;
+
+- name: Setting Directory Permission
+  shell: find /data/mysql -type d -exec chmod 750 {} \; 

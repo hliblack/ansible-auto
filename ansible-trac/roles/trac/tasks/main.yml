@@ -72,6 +72,9 @@
       mode: 0644
   notify: restart nginx
 
+- name: Grant authorization to admin
+  shell: trac-admin /data/wwwroot/trac permission add admin TRAC_ADMIN
+
 - name: Setting rc.local
   file:
     path: /etc/rc.local
@@ -91,6 +94,16 @@
   file:
     path: /root/password.txt
     mode: 0640
+    
+- name: install usermanager plugin
+  shell: easy_install https://trac-hacks.org/svn/accountmanagerplugin/tags/acct_mgr-0.5.0
+
+- name: replace trac.ini
+  copy:
+    src: trac.ini
+    dest: /data/wwwroot/trac/conf/
+    mode: 0640
+  notify: restart nginx
 
 - name: Databases Random Password
   copy: 
@@ -106,7 +119,7 @@
     mode: 0750
 
 - name: Setting File Permission
-  shell: find /data -type f -exec chmod 640 {} \;
+  shell: find /data/* -type f -exec chmod 640 {} \;
 
 - name: Setting Directory Permission
-  shell: find /data -type d -exec chmod 750 {} \; 
+  shell: find /data/* -type d -exec chmod 750 {} \; 

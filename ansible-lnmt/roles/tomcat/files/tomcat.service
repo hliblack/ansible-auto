@@ -1,0 +1,15 @@
+[Unit]
+Description=Apache Tomcat 
+After=syslog.target network.target
+ 
+[Service]
+Type=forking
+ExecStart=/usr/local/tomcat/bin/catalina.sh start
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=true
+User=www
+Group=www 
+
+[Install]
+WantedBy=multi-user.target

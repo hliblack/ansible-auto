@@ -3,6 +3,8 @@
     name: '*'
     state: latest
     force_apt_get: True
+    update_cache: yes
+    autoremove: yes
 
 - name: install nginx
   apt:
@@ -13,14 +15,15 @@
   file: 
       path: /data/wwwroot/trac
       state: directory
-      owner: www-data
-      group: www-data
+      owner: root
+      group: root
       mode: 0755
 
 - name: Create cert directory
   file: 
       path: /data/cert
       state: directory
+      mode: 0750
 
 - name: start nginx
   service:

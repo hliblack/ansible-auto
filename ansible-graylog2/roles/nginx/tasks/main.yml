@@ -10,7 +10,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0644
+    mode: 0750
 
 - name: delete old default configuration file
   file: 
