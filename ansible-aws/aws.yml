@@ -59,7 +59,7 @@
     - name: Add tag to instance
       ec2_tag: 
         aws_access_key: "{{ aws_access_key }}"
-        aws_secret_key: "{{ aws_seceret_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
         resource: "{{ item.id }}"
         region: "{{ region }}"
         state: "present"
