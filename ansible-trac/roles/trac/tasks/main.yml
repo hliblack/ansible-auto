@@ -86,8 +86,12 @@
     path: ~/password.txt
     mode: 0640
     
-- name: install usermanager plugin
-  shell: easy_install https://trac-hacks.org/svn/accountmanagerplugin/tags/acct_mgr-0.5.0
+# - name: install usermanager plugin
+#   shell: easy_install https://trac-hacks.org/svn/accountmanagerplugin/tags/acct_mgr-0.5.0
+- name: Install usermanager plugin
+  pip:
+    name: TracAccountManager
+    state: latest
 
 - name: replace trac.ini
   copy:

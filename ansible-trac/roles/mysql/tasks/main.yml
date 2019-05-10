@@ -44,10 +44,10 @@
 - name: enable remote access I
   mysql_user: 
     login_user: root 
-    login_password: "{{mysql_password}}"
+    login_password: "{{ mysql_password }}"
     name: root
     host: '%'
-    password: "{{mysql_password}}"
+    password: "{{ mysql_password }}"
     priv: '*.*:ALL'
   when: remote == 'yes'
 
@@ -59,8 +59,16 @@
   when: remote == 'yes'
   notify: restart MySQL
 
+# - name: create database
+#   command: mysql -uroot -p123456 -e "CREATE DATABASE trac CHARACTER SET utf8 COLLATE utf8_bin;"
 - name: create database
-  command: mysql -uroot -p123456 -e "CREATE DATABASE trac CHARACTER SET utf8 COLLATE utf8_bin;"
+  mysql_db:
+    login_user: root
+    login_password: "{{ mysql_password }}"
+    name: trac
+    state: present
+    encoding: utf8 
+    collation: utf8_bin
 
 - name: Setting File Permission
   shell: find /data/mysql -type f -exec chmod 640 {} \;
