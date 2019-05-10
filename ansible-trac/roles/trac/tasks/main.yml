@@ -30,17 +30,8 @@
 
 - name: delete ~/trac.exp
   file:
-    path: /root/trac.exp
+    path: ~/trac.exp
     state: absent
-
-# - name: Create Project Environment of trac
-#   expect:
-#     command: trac-admin /data/wwwroot/trac initenv
-#     responses:
-#       '[My Project]': 'trac'
-#       '[sqlite:db/trac.db]': 'mysql://root:123456@localhost:3306/trac'
-#     timeout: 60
-#     echo: yes
 
 - name: create tracwsgi.py
   template:
@@ -92,7 +83,7 @@
 
 - name: Password Text File Permission
   file:
-    path: /root/password.txt
+    path: ~/password.txt
     mode: 0640
     
 - name: install usermanager plugin

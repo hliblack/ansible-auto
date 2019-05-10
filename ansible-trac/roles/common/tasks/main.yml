@@ -1,4 +1,7 @@
 ---
+- name: Install python2
+  raw: 'sudo apt-get -y install python'
+
 - name: System Upgrade
   apt:
     name: "*"

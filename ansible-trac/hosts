@@ -1,2 +1,5 @@
-[server]
-159.138.29.236    ansible_ssh_user=root  ansible_ssh_pass=Qwer1234
+[local]
+localhost
+
+[servers]
+34.205.73.58    ansible_ssh_user=ubuntu

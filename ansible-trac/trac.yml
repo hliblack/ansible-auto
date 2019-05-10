@@ -1,13 +1,16 @@
 ---
+- import_playbook: instance/aws.yml
+
 - name: trac
-  hosts: all
+  hosts: webservers
+  remote_user: ubuntu
   become: yes
   become_method: sudo
-  become_user: root
+  gather_facts: yes
+
 
   roles:
     - { role: common, tags: common }
     - { role: nginx, tags: nginx }
-    # - { role: apache2, tags: apache2}
     - { role: mysql, tags: mysql }
     - { role: trac, tags: trac }
