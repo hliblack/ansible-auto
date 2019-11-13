@@ -1,0 +1,46 @@
+---
+
+- name: Create Script Dir
+  file:
+    path: /usr/local/websoft9
+    state: directory
+
+- name: Install module
+  pip:
+    name: pyinotify
+
+- name: Copy Script
+  copy:
+    src: main.py
+    dest: /usr/local/websoft9
+    mode: 0770
+
+- name: Configuration Service -1
+  template:
+    src: auto_chown.service
+    dest: /etc/systemd/system
+
+- name: Configuration Service -2
+  template:
+    src: phpmyadmin_permission.service
+    dest: /etc/systemd/system
+
+- name: started service -1
+  service: name=auto_chown state=started enabled=yes
+
+- name: started service -2
+  service: name=phpmyadmin_permission state=started enabled=yes
+
+- name: Setting File Permission
+  shell: find /data/* -type f -exec chmod 640 {} \;
+
+- name: Seting Owner and Group for Nginx
+  shell: chown -R nginx. {{item}}
+  with_items:
+    - /data/wwwroot
+    - /data/apps
+    - /var/lib/php/session
+
+- name: Seting Owner and Group for MySQL
+  shell: chown -R mysql. /data/mysql
+

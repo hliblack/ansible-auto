@@ -1,0 +1,90 @@
+---
+- name: Setting Evironment Variable
+  shell:
+    export LC_ALL=C
+
+- name: Install the repository RPM
+  yum_repository:
+    name: mongodb-org-{{mongodb_ver}}
+    description: mongodb {{mongodb_ver}}
+    file: mongodb-org-{{mongodb_ver}}
+    baseurl: https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/{{mongodb_ver}}/x86_64/
+    gpgkey: https://www.mongodb.org/static/pgp/server-{{mongodb_ver}}.asc
+    gpgcheck: yes
+    enabled: yes
+
+- name: Install MongoDB{{mongodb_ver}}
+  yum: 
+    name: [mongodb-org]
+    state: latest
+
+- name: Install pymongo
+  pip:
+    name: pymongo
+
+- name: Create Databases Directory
+  file:
+    path: /data/mongo
+    state: directory
+    owner: mongod
+    group: mongod
+
+- name: Copy MongoDB Configuration
+  copy: 
+    src: mongod.conf
+    dest: /etc/
+
+- name: Start MongoDB
+  service:
+    name:  mongod
+    enabled: yes 
+    state: started 
+
+- name: Setting MongoDB Administrator User
+  mongodb_user:
+    database: admin
+    name: root
+    password: '{{mongodb_pwd}}'
+    roles: root
+    state: present
+
+- name: Enable MongoDB authorization
+  lineinfile:
+    path: /etc/mongod.conf
+    regexp: '  authorization: disabled'
+    line: '  authorization: enabled'
+
+- name: restart MongoDB
+  service: name=mongod state=restarted enabled=yes
+
+- name: Create credentials Folder
+  file:
+    path: /credentials
+    state: directory
+
+- name: Create Password doc
+  file:
+    path: /credentials/password.txt
+    mode: 644
+    state: touch
+
+- name: Write Databases Password
+  shell: echo 'mongodb username:root\nmongodb password:'{{mongodb_pwd}}  > /credentials/password.txt
+
+- name: Databases Random Password
+  copy: 
+    src: init.py
+    dest: /root/init.py
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.py'
+    line: '/root/init.py'
+    mode: 0750
+
+- name: initalize vm
+  shell:
+    waagent -deprovision+user --force
+  when: cloudplateform == "azure"

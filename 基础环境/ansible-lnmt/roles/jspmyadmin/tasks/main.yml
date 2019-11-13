@@ -1,0 +1,16 @@
+---
+- name: Create apps directory
+  file: 
+    path: /data/apps
+    state: directory
+    owner: www
+    group: www
+
+- name: Install jspmyadmin
+  unarchive:
+    src: http://libs-websoft9-com.oss-cn-qingdao.aliyuncs.com/Websoft9/jspmyadmin.zip
+    dest: /data/apps
+    owner: www
+    group: www
+    remote_src: yes
+

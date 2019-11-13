@@ -1,0 +1,18 @@
+## 部署
+- name: nextcloud
+  hosts: nextcloud
+  become: yes
+  become_method: sudo
+  vars:
+    nextcloud: https://download.nextcloud.com/server/releases/nextcloud-17.0.0.zip
+
+  roles:
+    - {role: common, tags: "common"}
+    - {role: redis, tags: "redis"}
+    - {role: apache, tags: "apache"}
+    - {role: mysql, tags: "mysql"}
+    - {role: php-fpm, tags: "php-fpm"}
+    - {role: lamp, tags: "lamp"}
+    - {role: phpmyadmin, tags: "phpmyadmin"}
+    - {role: 9panel, tags: "9panel"}
+    - {role: nextcloud, tags: "nextcloud"}

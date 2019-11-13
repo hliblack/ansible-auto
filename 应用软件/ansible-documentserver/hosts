@@ -1,0 +1,5 @@
+[local]
+localhost
+
+[documentserver]
+104.41.129.101  ansible_ssh_user=websoft9 ansible_ssh_pass=Qwerty123456  ansible_sudo_pass=Qwerty123456

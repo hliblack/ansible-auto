@@ -1,0 +1,7 @@
+- name: Memcached Version for Centos
+  debug:
+    var: memcached_ver_centos.stdout
+
+- name: Memcached Version for Ubuntu
+  debug:
+    var: memcached_ver_ubuntu.stdout

@@ -1,0 +1,16 @@
+- name: Install haproxy
+  apt: 
+    name: haproxy
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install haproxy
+  yum: 
+    name: haproxy
+  when: ansible_distribution == 'CentOS'
+
+  
+- name: Start haproxy
+  service:
+    name: haproxy
+    enabled: yes
+    state: restarted

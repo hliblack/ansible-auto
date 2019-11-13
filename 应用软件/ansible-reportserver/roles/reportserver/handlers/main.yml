@@ -1,0 +1,9 @@
+---
+- name: restart mysql
+  service: name=mysql state=restarted enabled=yes
+
+- name: restart tomcat8
+  service: name=tomcat8 state=restarted enabled=yes
+
+  
+

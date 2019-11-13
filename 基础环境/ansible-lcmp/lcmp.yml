@@ -1,0 +1,13 @@
+---
+- name: LNMP
+  hosts: all
+  remote_user: root
+
+  roles:
+    - { role: common , tags: "common"} 
+    - { role: caddy , tags: "caddy"}
+    - { role: php-fpm , tags: "php-fpm"}
+    - { role: mysql , tags: "mysql"}
+    - { role: phpmyadmin , tags: "phpmyadmin"}
+    - { role: 9panel , tags: "9panel"}
+    - { role: other , tags: "other"}

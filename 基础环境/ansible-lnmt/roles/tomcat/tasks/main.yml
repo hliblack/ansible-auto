@@ -1,0 +1,58 @@
+---
+- name: Install JDK1.8
+  yum: 
+    name: [java-1.8.0-openjdk,java-1.8.0-openjdk-devel]
+    state: present
+
+
+- name: Download Tomcat
+  unarchive: 
+    src: https://www-us.apache.org/dist/tomcat/tomcat-8/v8.5.47/bin/apache-tomcat-8.5.47.tar.gz
+    dest: /usr/local/
+    remote_src: yes
+
+- name: Rename Tomcat dir
+  shell: mv /usr/local/apache-tomcat* /usr/local/tomcat
+
+
+- name: Change Tomcat dir own
+  file:
+    path: /usr/local/tomcat
+    owner: www
+    group: www
+    state: directory
+    recurse: yes
+
+- name: Change tomcat *.sh Permission
+  file:
+    path: "/usr/local/tomcat/bin/{{ item }}"
+    mode: "u=rwx,g=rwx,o-rwx"
+    state: file
+  with_items:
+    - catalina.sh  
+    - configtest.sh  
+    - daemon.sh  
+    - digest.sh  
+    - setclasspath.sh  
+    - shutdown.sh  
+    - startup.sh  
+    - tool-wrapper.sh  
+    - version.sh
+
+
+- name: copy tomcat Configuration
+  copy: src=server.xml dest=/usr/local/tomcat/conf
+
+- name: copy tomcat.service
+  copy: src=tomcat.service dest=/lib/systemd/system/
+
+- name: restart tomcat
+  service: name=tomcat state=restarted enabled=yes
+
+- name: fixed some problems
+  lineinfile:
+      dest: /usr/lib/jvm/java-1.8.0-openjdk/jre/lib/security/java.security
+      regexp: 'securerandom.source=file:/dev/random'
+      line: "securerandom.source=file:/dev/./urandom"
+      state: present
+

@@ -1,0 +1,112 @@
+# remote_user
+admin_username: root
+
+# Tiki-暂无文档
+Tiki:           https://nchc.dl.sourceforge.net/project/tikiwiki/Tiki_18.x_Alcyone/18.2/tiki-18.2.zip
+
+# EmpireCMS
+EmpireCMS:      http://ecms.phome.net/downcenter/empirecms/ecms75/download/EmpireCMS_7.5_SC_UTF8.zip
+
+# KODExplorer
+KODExplorer:    http://static.kodcloud.com/update/download/kodexplorer4.37.zip
+
+# MantisBT
+MantisBT:       https://nchc.dl.sourceforge.net/project/mantisbt/mantis-stable/2.18.0/mantisbt-2.18.0.zip
+
+# EspoCRM
+EspoCRM:        https://www.espocrm.com/downloads/EspoCRM-5.5.3.zip
+
+# Drupal下载速度慢，需要预下载
+Drupal:         http://libs.websoft9.com/apps/drupal-8.6.9.zip
+
+# Opencart存放在github上的release固定地址下载会出现停滞，故先预下载。Opecart中文版即光大网络的中文本地版
+## 英文版
+OpenCart:                http://libs.websoft9.com/apps/opencart/opencart-3.0.3.1.zip
+opencart_package_CN:     http://libs.websoft9.com/apps/opencart/opencart3-cnpack.zip   #中文语言包
+## 中文版
+#OpenCart:               http://libs.websoft9.com/apps/opencart/opencart-v30-free-20180919.zip
+
+# Joomla 最低要求php7.1
+Joomla:         https://downloads.joomla.org/cms/joomla3/3-9-8/Joomla_3-9-8-Stable-Full_Package.zip
+
+# Zurmo 需要预下载
+Zurmo:          http://libs-websoft9-com.oss-cn-qingdao.aliyuncs.com/apps/PHP/zurmo.zip
+
+# Pydio 需预下载
+Pydio:          http://libs-websoft9-com.oss-cn-qingdao.aliyuncs.com/apps/PHP/pydio.zip
+
+# Dolibarr
+Dolibarr:       https://jaist.dl.sourceforge.net/project/dolibarr/Dolibarr%20ERP-CRM/8.0.4/dolibarr-8.0.4.zip
+
+# VtigerCRM
+VtigerCRM:      https://nchc.dl.sourceforge.net/project/vtigercrm/vtiger%20CRM%207.1.0/Core%20Product/vtigercrm7.1.0.tar.gz
+
+# SuiteCRM  最低php5.6,也支持7.3
+SuiteCRM:       https://suitecrm.com/files/162/SuiteCRM-7.11/435/SuiteCRM-7.11.5.zip
+
+# PrestaShop 最低php5.6
+PrestaShop:     https://download.prestashop.com/download/releases/prestashop_1.7.5.2.zip
+
+# MediaWiki 最低php7.0,也支持7.2
+MediaWiki:      https://releases.wikimedia.org/mediawiki/1.32/mediawiki-1.32.2.tar.gz
+
+# Discuz
+Discuz:         https://gitee.com/ComsenzDiscuz/DiscuzX.git     
+
+# Wordpress 最低建议php7.0，官方推荐php7.3
+WordPress:      https://wordpress.org/latest.zip
+
+# Moodle
+Moodle:         https://download.moodle.org/stable36/moodle-latest-36.tgz
+
+# ranzhi(Zdoo) 官方最低为php5.4,建议php7.0。然之有中文版和国际版两种版本（.int为国际版）
+ranzhi:         http://dl.cnezsoft.com/ranzhi/5.2/ranzhi.5.2.stable.int.zip
+
+# ZenTao 官方最低为php5.4,建议php7.0禅道有中文版和国际版两种版本（.int为国际版）
+ZenTaoPMS:      http://dl.cnezsoft.com/zentao/11.5/ZenTaoALM.11.5.stable.int.zip
+
+# chanzhiEPS
+chanzhiEPS:     http://dl.cnezsoft.com/chanzhi/7.4.1/chanzhiEPS.7.4.1.zip
+
+# NextCloud - 官方最低php7.1，推荐php7.2或7.3,中国地区建议预下载
+NextCloud:      https://download.nextcloud.com/server/releases/nextcloud-16.0.1.zip
+
+# OwnCloud - 官方最低php7.0，推荐php7.2,中国地区建议预下载
+OwnCloud:       https://download.owncloud.org/community/owncloud-10.2.1.zip
+
+# Mangento 官方最低php7.1, php7.2也可以。中国地区建议预下载，语言包也需要预下载
+## 源码
+Magento:        http://libs.websoft9.com/apps/Magento/Magento-CE-2.3.1.tar.gz
+## 包含演示数据的完整包
+# Magento:        http://libs.websoft9.com/apps/Magento/Magento-CE-2.3.1_sample_data-2019-03-18-07-14-27.tar.gz
+## 中文语言包
+mogento_package_CN:    http://libs.websoft9.com/apps/Magento/language-zh_hans_cn.tar.gz
+
+# dzzoffice - 预下载
+dzzoffice:      http://libs.websoft9.com/apps/DzzOffice/dzzoffice.tar.gz
+
+# laravel - composer安装
+laravel:        http://libs.websoft9.com/apps/PHP/laravel.tar.gz
+
+# thinkphp - 预下载
+thinkphp:       http://libs.websoft9.com/apps/PHP/thinkphp.zip
+
+# thinkcmf - 预下载
+thinkcmf:       http://libs.websoft9.com/apps/thinkcmf.zip
+
+# onethink - 预下载
+onethink:       http://libs.websoft9.com/apps/onethink.zip
+
+# ResourceSpace - 预下载
+ResourceSpace:  http://libs.websoft9.com/apps/PHP/ResourceSpace.zip
+
+# CmsEasy - 官方下载
+CmsEasy:  http://ftp.cmseasy.cn/CmsEasy7.x/CmsEasy_7.0_UTF-8_20181212.zip
+
+# Matomo - 预下载
+Matomo:   http://libs.websoft9.com/apps/matomo/matomo.zip
+
+# Vanillaforums - 预下载
+vanilla:  http://libs.websoft9.com/apps/PHP/vanilla-core.zip
+
+

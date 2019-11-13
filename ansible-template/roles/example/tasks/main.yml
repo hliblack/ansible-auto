@@ -1,0 +1,4 @@
+---
+# tasks file for example
+
+- debug: msg='Hello world'

@@ -1,0 +1,109 @@
+---
+
+- name: Import MariaDB {{mariadb_ver}} Repo
+  yum_repository:
+    name: mariadb
+    description: mariadb YUM repo
+    file: MariaDB
+    baseurl: http://yum.mariadb.org/{{mariadb_ver}}/centos7-amd64
+    gpgkey: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+    gpgcheck: yes
+
+
+- name: Install MariaDB{{ mariadb_ver }}
+  yum: 
+    name: [MariaDB-server,MariaDB-client]
+    state: latest
+
+- name: Create Databases Directory
+  file:
+    path: /data/mysql
+    state: directory
+    owner: mysql
+    group: mysql
+
+- name: Copy MariaDB{{mariadb_ver}} Configuration
+  template: src=my.cnf dest=/etc/my.cnf
+
+- name: initialize databases
+  command: mysql_install_db --user=mysql --basedir=/usr --datadir=/data/mysql 
+
+- name: StartMariaDB{{mariadb_ver}} Service
+  service: name=mariadb state=restarted enabled=yes
+
+- name: Change MySQL{{ mariadb_ver }} root user password 
+  mysql_user: 
+    name: root 
+    host: "{{ item }}" 
+    password: "{{mariadb_password}}"
+  with_items:
+    - 127.0.0.1
+    - ::1
+    - localhost
+
+- name: Removes all anyelse user accounts
+  mysql_user:
+    login_user: root
+    login_password: "{{mariadb_password}}"
+    name: ''
+    host_all: yes
+    state: absent
+
+- name: Remove hostname user accounts
+  mysql_user: login_user=root login_password={{mariadb_password}} name='root' host={{ ansible_fqdn }} state=absent
+
+
+- name: Removes test Databases
+  mysql_db:
+    login_user: root
+    login_password: "{{mariadb_password}}"
+    name: test
+    state: absent
+
+- name: Removing privileges on test database
+  command: mysql -uroot -p{{mariadb_password}} -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'"
+
+- name: FLUSH PRIVILEGES
+  command: mysql -uroot -p{{mariadb_password}} -e "FLUSH PRIVILEGES"
+
+
+- name: enable remote access
+  mysql_user: 
+    login_user: root 
+    login_password: "{{mariadb_password}}"
+    name: root
+    host: '%'
+    password: "{{mariadb_password}}"
+  when: remote 
+
+- name: Create credentials Folder
+  file:
+    path: /credentials
+    state: directory
+
+- name: Create Password doc
+  file:
+    path: /credentials/password.txt
+    mode: 644
+    state: touch
+
+- name: Write Databases Password
+  shell: echo -e 'MySQL username:root\nMySQL password:'{{mysql_password}}  > /credentials/password.txt
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750
+
+- name: change permission of password.txt
+  shell: chmod 640 /credentials/password.txt
+
+

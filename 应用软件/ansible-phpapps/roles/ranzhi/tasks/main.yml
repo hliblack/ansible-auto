@@ -1,0 +1,60 @@
+---
+# 然之OA
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+
+  
+- name: Download RanZhiOA
+  unarchive:
+    src: "{{ ranzhi }}"
+    dest: /data/wwwroot
+    owner: apache
+    group: apache
+    remote_src: yes
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+    
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["Ranzhi"];'
+
+
+  
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750
+
+- name: change permission of password.txt
+  shell: chmod 640 /credentials/password.txt

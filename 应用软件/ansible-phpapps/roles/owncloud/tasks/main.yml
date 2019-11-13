@@ -1,0 +1,78 @@
+---
+# OwnCloud
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+  
+- name: Download OwnCloud
+  unarchive:
+    src: "{{ OwnCloud }}"
+    dest: /data/wwwroot
+    owner: apache
+    group: apache
+    remote_src: yes
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["OwnCloud"];'
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: Permission occ
+  file:
+    path: /data/wwwroot/owncloud/occ
+    state: file
+    mode: "u+x,g+x"
+
+- name: copy config
+  copy:
+    src: config.php
+    dest: /data/wwwroot/owncloud/config
+
+
+- name: restart redis
+  service: name=redis state=restarted enabled=yes
+
+
+- name: Owncloud cron
+  cron:
+    name: "Owncloud cron"
+    minute: "*/15"
+    hour: "*"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    user: apache
+    job: "php -f /data/wwwroot/owncloud/cron.php"
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750
+

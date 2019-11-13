@@ -1,0 +1,2 @@
+# 默认web应用为apache，如果基础镜像是LNMP，则需要更换为nginx
+web: apache

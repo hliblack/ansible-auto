@@ -1,0 +1,85 @@
+---
+# Drupal
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+  
+- name: Delete www.exampla.com directory
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+# 下载
+- name: Download Drupal
+  unarchive:
+    src: "{{ drupal }}"
+    dest: /data/wwwroot
+    owner: apache
+    group: apache
+    remote_src: yes
+
+- name: Rename folder
+  shell: mv /data/wwwroot/drupal-* /data/wwwroot/drupal
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+# 创建数据库
+- name: Get MySQL Password
+  shell: cat /credentials/password.txt | awk 'NR==2' |awk -F ":" '{print $2}'
+  register: mysql_password
+
+- name: Create Drupal databases
+  mysql_db:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: drupal
+    state: present
+
+- name: Create Drupal databases user
+  mysql_user:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: drupal
+    password: "{{mysql_password.stdout}}"
+    priv: 'drupal.*:ALL'
+    state: present
+
+# 9panel
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["Drupal"];'
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest
+
+# 随机密码
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750
+
+# 初始化 on azure
+- name: initialize azure vm
+  shell:  waagent -deprovision+user --force
+  when: cloud == "azure"

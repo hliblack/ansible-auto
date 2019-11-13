@@ -1,0 +1,23 @@
+# This is a configrationgfile of 9panel, please don't delete it. 
+
+Alias /9panel C:\websoft9\wampstack\apps\9panel
+<Directory "C:\websoft9\wampstack\apps\9panel">
+Options Indexes FollowSymlinks
+AllowOverride All
+Require all granted
+</Directory>
+
+# Bitnami applications installed in a Virtual Host
+
+<VirtualHost *:80>
+ServerName www.example.com
+ServerAlias other.example.com
+DocumentRoot "C:\wwwroot\www.example.com"
+ErrorLog "C:\websoft9\wampstack\apache2\logs\example.com_error_apache.log"
+CustomLog "C:\websoft9\wampstack\apache2\logs\example.com_access_apache.log" common
+<Directory "C:\wwwroot\www.example.com">
+Options Indexes FollowSymlinks
+AllowOverride All
+Require all granted
+</Directory>
+</VirtualHost>

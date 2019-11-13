@@ -1,0 +1,115 @@
+---
+# Testlink
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+
+- name: Get MySQL Password
+  shell: cat /credentials/password.txt | awk 'NR==2' |awk -F ":" '{print $2}'
+  register: mysql_password
+  
+- name: Create directory -1
+  file:
+    path: /var/testlink/logs
+    state: directory
+    mode: 0777
+
+- name: Create directory -2
+  file:
+    path: /var/testlink/upload_area
+    state: directory
+    mode: 0777
+
+- name: Download Testlink
+  git:
+    repo: https://github.com/TestLinkOpenSourceTRMS/testlink-code.git
+    dest: /data/wwwroot/testlink
+    version: "{{ version }}"
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Create Testlink databases
+  mysql_db:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: testlink
+    state: present
+
+- name: Create database user with name 'testlink' and password 'mysql_password' with all database privileges
+  mysql_user:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: testlink
+    password: "{{mysql_password.stdout}}"
+    priv: 'testlink.*:ALL'
+    state: present
+
+- name: replace my.cnf
+  template:
+    src: my.cnf
+    dest: /etc/my.cnf
+    mode: 0755
+
+- name: restart mysql
+  service: name=mysqld state=restarted enabled=yes
+
+- name: replace testlink_create_udf0.sql
+  template:
+    src: testlink_create_udf0.sql
+    dest: /data/wwwroot/testlink/install/sql/mysql/testlink_create_udf0.sql
+    owner: apache
+    group: apache
+    mode: 0755
+
+- name: Import file.sql similar to mysql -u <username> -p <password> < hostname.sql
+  mysql_db:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    state: import
+    name: testlink
+    target: /data/wwwroot/testlink/install/sql/mysql/testlink_create_udf0.sql
+
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: Copy php.ini
+  template: src=php.ini dest=/etc
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["Testlink"];'
+
+
+- name: Permission directory & files
+  shell: |
+    find /data/wwwroot -type d -exec chmod 750 {} \;
+    find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest
+
+- name: Databases Random Password
+  copy: 
+    src: init-57.sh
+    dest: /root/init.sh
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

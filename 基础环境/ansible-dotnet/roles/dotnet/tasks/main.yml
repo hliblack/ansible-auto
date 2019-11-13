@@ -1,0 +1,25 @@
+---
+- name: Download .NETCoreSDK
+  win_get_url:
+    url: "{{netcore}}"
+    dest: C:\temp\NETCore.exe
+
+- name: Download .NET Framework 4.8
+  win_get_url:
+    url: "{{NETFramework}}"
+    dest: C:\temp\NETFramework.exe
+
+- name: Install .NETCoreSDK
+  win_package:
+    path: C:\temp\NETCore.exe
+    product_id: NETCoreSDK
+    arguments:
+        - /S
+
+- name: Install vc++4.8
+  win_package:
+    path: C:\temp\NETFramework.exe
+    product_id: vc++4.8
+    arguments:
+        - /q
+        - /NORESTART

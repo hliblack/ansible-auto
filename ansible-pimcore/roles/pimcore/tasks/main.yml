@@ -1,0 +1,75 @@
+---
+- name: Get MySQL Password
+  shell: cat /credentials/password.txt | awk -F ":" '{print $2}' | sed -n '2p'
+  register: mysql_password
+
+- name: replace default configration file
+  template:
+    src: redis.conf
+    dest: /etc/redis.cnf
+    mode: 0644
+  notify: restart redis
+
+- name : Install Pimcore
+  shell: cd /data/wwwroot ; COMPOSER_MEMORY_LIMIT=-1 composer create-project pimcore/demo-basic pimcore
+
+- name: replace my.cnf
+  template:
+    src: my.cnf
+    dest: /etc/my.cnf
+    mode: 0644
+  notify: restart mysql
+
+- name: restart mysql
+  service:
+    name: mysqld
+    state: restarted
+    enabled: yes
+
+- name: create pimcore database
+  mysql_db:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: pimcore
+    state: present
+
+- name: Create database user with name 'pimcore' and password  with all database privileges
+  mysql_user:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: pimcore
+    password: "{{mysql_password.stdout}}"
+    priv: 'pimcore.*:ALL'
+    state: present
+
+- name: replace vhost.conf
+  template:
+    src: vhost.conf
+    dest: /etc/httpd/vhost/vhost.conf
+    mode: 0644
+  notify: restart apache
+
+- name: Initialization Install
+  shell: /data/wwwroot/pimcore/vendor/bin/pimcore-install --admin-username admin --admin-password admin123 --mysql-username pimcore --mysql-password "{{mysql_password.stdout}}" --mysql-database pimcore --no-interaction
+
+- name: delete extra file
+  shell: |
+    rm -rf /root/*
+    rm -rf /data/wwwroot/www.example.com
+
+- name: Databases Random Password for mysql5.7 or 8.0
+  copy:
+    src: init-57.sh
+    dest: /root/init.sh
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750
+
+- name: change permission of password.txt
+  shell: chmod 640 /credentials/password.txt
+

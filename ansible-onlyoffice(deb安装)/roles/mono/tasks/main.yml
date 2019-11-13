@@ -1,0 +1,22 @@
+---
+- name: Install dependencies
+  apt:
+    name: [gnupg, ca-certificates]
+    state: latest
+
+- name: add Mono GPT KEY
+  apt_key:
+    keyserver: hkp://keyserver.ubuntu.com:80
+    id: 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+
+- name: add Mono repostory
+  apt_repository:
+    repo: deb https://download.mono-project.com/repo/ubuntu stable-bionic main
+    state: present
+    filename: /etc/apt/sources.list.d/mono-official-stable.list
+    update_cache: yes
+
+- name: Install Mono
+  apt:
+    name: mono-complete
+    state: latest

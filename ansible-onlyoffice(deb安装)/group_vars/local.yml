@@ -1,0 +1,1 @@
+public_roles: [common, mysql, nginx, node.js, docker]

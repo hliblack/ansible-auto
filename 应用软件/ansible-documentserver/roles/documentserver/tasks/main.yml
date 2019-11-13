@@ -1,0 +1,43 @@
+---
+- name: Install docker-py
+  pip:
+    name: docker-py
+    state: latest
+
+- name: pull onlyoffice/documentserver image
+  docker_image:
+    name: onlyoffice/documentserver
+
+- name: Run onlyoffice/documentserver
+  docker_container:
+    name: documentserver
+    image: onlyoffice/documentserver
+    restart_policy: always
+    ports: 
+      - "8080:80"
+    volumes: 
+      - /app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice
+      - /app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data
+
+# nginx配置
+- name: Create directory of certificate 
+  file: 
+      path: /data/cert
+      state: directory
+
+- name: Copy Nginx Configuration 
+  template:
+    src: nginx.conf 
+    dest: /etc/nginx
+  notify: restart nginx
+
+- name: Copy Nginx other Configuration
+  template: 
+    src:  default.conf
+    dest: /etc/nginx/conf.d
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

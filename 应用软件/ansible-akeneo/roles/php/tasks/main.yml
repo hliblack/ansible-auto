@@ -1,0 +1,28 @@
+- name: Install software-properties-common
+  apt:
+    name: software-properties-common
+    state: latest
+
+- name: add php repostory
+  apt_repository:
+    repo: ppa:ondrej/php
+
+- name: Install php
+  apt:
+    name: [php7.2, php7.2-apcu, php7.2-bcmath, php7.2-cli, php7.2-curl, php7.2-fpm, php7.2-gd, php7.2-intl, php7.2-mysql, php7.2-xml, php7.2-zip]
+    state: latest
+    autoremove: yes
+    update_cache: yes
+
+- name: Replace php.ini
+  template:
+    src: php.ini.j2
+    dest: /etc/php/7.2/cli/php.ini
+    owner: root
+    group: root
+
+- name: Reload apache
+  service:
+    name: apache2
+    state: reloaded
+    enabled: yes

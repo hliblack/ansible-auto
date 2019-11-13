@@ -1,0 +1,32 @@
+- name: system upgrade
+  apt:
+    name: '*'
+    state: latest
+    force_apt_get: True
+    update_cache: yes
+    autoremove: yes
+
+- name: install nginx
+  apt:
+    name: nginx
+    state: latest
+
+- name: Create WebSite directory
+  file: 
+      path: /data/wwwroot/trac
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+
+- name: Create cert directory
+  file: 
+      path: /data/cert
+      state: directory
+      mode: 0750
+
+- name: start nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

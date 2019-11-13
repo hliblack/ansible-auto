@@ -1,0 +1,4 @@
+- name: redis Version
+  debug:
+    var: redis_ver.stdout
+

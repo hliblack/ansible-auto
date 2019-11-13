@@ -1,0 +1,7 @@
+- name: install on ubuntu
+  include: install_ubuntu.yml
+  when: ansible_os_family == "Ubuntu"
+
+- name: install on centos
+  include: install_centos.yml
+  when: ansible_os_family == "CentOS"

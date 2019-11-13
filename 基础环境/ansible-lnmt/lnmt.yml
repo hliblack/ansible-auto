@@ -1,0 +1,13 @@
+---
+- name: LNMT
+  hosts: lnmt
+  become: yes
+  become_method: sudo
+
+  roles:
+    - {role: common, tags: "common"}
+    - {role: nginx_for_tomcat, tags: "nginx_for_tomcat "} 
+    - {role: tomcat,tags: "tomcat"}
+    - {role: mysql,tags: "mysql"}
+    - {role: 9panel,tags: "9panel"}
+    - {role: other,tags: "other"}

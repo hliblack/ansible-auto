@@ -1,0 +1,64 @@
+---
+- name: RabbitMQ
+  hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+  remote_user: '{{admin_username}}'
+  gather_facts: False
+  pre_tasks:
+   - name: 'install python'
+     raw: 'sudo apt-get -y install python'
+
+
+- name: RabbitMQ
+  hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+  remote_user: '{{admin_username}}'
+  
+  tasks:
+    - include_tasks: common.yml
+    
+    - name: add a key used to sign RabbitMQ
+      apt_key:
+        keyserver: hkps.pool.sks-keyservers.net
+        id: 6B73A36E6026DFCA
+    
+    - name: add the apt repository
+      apt_repository:
+       repo: "{{item}}"
+       state: present
+       filename: bintray.rabbitmq
+      with_items:
+        - deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang
+        - deb https://dl.bintray.com/rabbitmq/debian bionic main
+    
+    - name: Install RabbitMQ
+      apt:
+        name: rabbitmq-server
+
+    - name: enable RabbitMQ HTTP API
+      shell: rabbitmq-plugins enable rabbitmq_management
+
+    - name: Add RabbitMQ admin User
+      shell:  rabbitmqctl add_user admin admin
+
+    - name: setting admin user tags 
+      shell: rabbitmqctl set_user_tags admin administrator
+
+    - name: Restart RabbitMQ Server
+      service:
+        name: rabbitmq-server
+        state: restarted
+        enabled: yes
+
+
+    - name: Remove SSH info
+      file: 
+        path: '{{item}}'
+        state: absent
+      with_items:
+        - /home/{{admin_username}}/.ssh
+        - /root/.ssh

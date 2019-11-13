@@ -1,0 +1,78 @@
+---
+- name: Create temporary Directory
+  win_file:
+    path: "{{item}}"
+    state: directory
+  with_items:
+    - C:\temp
+    - C:\websoft9
+    - C:\Credentials\
+
+## 安装strawberryperl
+- name: Install strawberryperl
+  win_package:
+    path: "{{strawberryperl}}"
+    product_id: strawberryperl
+    argument:
+      - /q
+
+## 安装mysql
+- name: Download MySQL{{mysql_ver}}
+  win_get_url:
+    url: "{{mysql_url}}"
+    dest: C:\temp\mysql.zip
+
+- name: unarchive mysql.zip
+  win_unzip:
+    src: C:\temp\mysql.zip
+    dest: C:\websoft9\
+
+- name: Read mysql version
+  win_shell:
+    dir /b C:\websoft9\
+  args:
+    executable: cmd
+  register: mysql_ver
+
+- name: rename directory name
+  win_shell: ren C:\websoft9\{{mysql_ver.stdout_lines[0]}} mysql
+
+- name: Create mysql/data directory
+  win_file:
+    path: C:\websoft9\mysql\data
+    state: directory
+
+- name: copy mysql configration file
+  win_template:
+    src: my.ini.j2
+    dest: C:\websoft9\mysql\my.ini
+
+- name: Add mysql envirinment variable
+  win_path:
+    elements:
+      C:\websoft9\mysql\bin
+
+- name: mysql initialize
+  win_shell:
+    mysqld --initialize-insecure
+
+- name: Create MySQL service
+  win_shell:
+    mysqld -install
+
+- name: start mysql service
+  win_service:
+    name: mysql
+    start_mode: auto
+    state: started
+
+## 重置MySQL密码
+- name: Reset MySQL password
+  win_command:
+    mysqladmin -uroot password "{{mysql_password}}"
+
+- name: Copy password.txt to Credentials
+  win_template:
+    src: password.txt.j2
+    dest: C:\Credentials\password.txt
+

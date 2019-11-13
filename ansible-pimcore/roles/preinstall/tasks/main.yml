@@ -1,0 +1,90 @@
+# FFMPEG (>= 3) Ghostscript (>= 9.16) LibreOffice (>= 4.3) wkhtmltoimage / wkhtmltopdf (>= 0.12) html2text (mbayer) pdftotext (poppler utils)
+# inkscape zopflipng pngcrush jpegoptim pngout advpng cjpeg (MozJPEG) exiftool SQIP - SVG Placeholder facedetect Graphviz
+
+- name: System update
+  yum:
+    name: '*'
+    state: latest
+
+## FFMPEG
+- name: add repollist
+  shell: yum localinstall -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-7.noarch.rpm
+
+- name: Install FFMPEG
+  yum: name=ffmpeg  state=latest
+
+# wkhtmltopdf
+- name: install dependence
+  yum:
+    name: [xorg-x11-fonts-75dpi, xorg-x11-fonts-Type1]
+    state: latest
+
+- name: download wkhtmltoimage.rpm
+  get_url:
+    url: https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox-0.12.5-1.centos7.x86_64.rpm
+    dest: /opt/wkhtmltox.rpm
+    mode: 0640
+
+- name: Install package wkhtmltoimage
+  command: rpm -ivh wkhtmltox.rpm
+  args:
+    chdir: /opt/
+
+# Other Additional Server Software
+- name: Install Ghostscript html2text pdftotext(poppler utils)
+  yum:
+    name: [html2text, poppler]
+    state: latest
+
+# inkscape zopflipng pngcrush jpegoptim pngout advpng cjpeg
+- name: inkscape zopflipng pngcrush jpegoptim pngout advpng
+  shell: |
+    wget https://github.com/imagemin/zopflipng-bin/raw/master/vendor/linux/zopflipng -O /usr/local/bin/zopflipng
+    wget https://github.com/imagemin/pngcrush-bin/raw/master/vendor/linux/pngcrush -O /usr/local/bin/pngcrush
+    wget https://github.com/imagemin/jpegoptim-bin/raw/master/vendor/linux/jpegoptim -O /usr/local/bin/jpegoptim
+    wget https://github.com/imagemin/pngout-bin/raw/master/vendor/linux/x64/pngout -O /usr/local/bin/pngout
+    wget https://github.com/imagemin/advpng-bin/raw/master/vendor/linux/advpng -O /usr/local/bin/advpng
+    wget https://github.com/imagemin/mozjpeg-bin/raw/master/vendor/linux/cjpeg -O /usr/local/bin/cjpeg
+
+- name: change permission
+  shell: |
+    chmod 0755 /usr/local/bin/zopflipng
+    chmod 0755 /usr/local/bin/pngcrush
+    chmod 0755 /usr/local/bin/jpegoptim
+    chmod 0755 /usr/local/bin/pngout
+    chmod 0755 /usr/local/bin/advpng
+    chmod 0755 /usr/local/bin/cjpeg
+
+# SQIP
+- name: add yarn reposity
+  shell: |
+    curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+    curl --silent --location https://rpm.nodesource.com/setup_8.x | sudo bash -
+
+- name: Install yarn
+  yum: name=yarn  state=latest
+
+# ExifTool
+- name: Download ExifTool
+  unarchive:
+    src: https://sno.phy.queensu.ca/~phil/exiftool/Image-ExifTool-11.48.tar.gz
+    dest: /root/
+    remote_src: yes
+
+- name: Install dependence perl-ExtUtils-MakeMaker
+  yum: name=perl-ExtUtils-MakeMaker  state=latest
+
+- name: Install ExifTool -1
+  command: perl Makefile.PL
+  args: 
+    chdir: /root/Image-ExifTool-11.48
+
+- name: Install ExifTool -2
+  command: make test
+  args: 
+    chdir: /root/Image-ExifTool-11.48
+
+- name: Install ExifTool -3
+  command: sudo make install
+  args:
+    chdir: /root/Image-ExifTool-11.48

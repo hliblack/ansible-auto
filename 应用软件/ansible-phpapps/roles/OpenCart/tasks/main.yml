@@ -1,0 +1,126 @@
+---
+# Opencart
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+
+##　sql文件在打包时修改
+- name: Get MySQL Password
+  shell: cat /credentials/password.txt | awk 'NR==2' |awk -F ":" '{print $2}'
+  register: mysql_password
+  
+- name: Create opencart1 folder
+  file:
+    path: /data/wwwroot/opencart1
+    state: directory
+    mode: 0750
+
+- name: Download Opencart
+  unarchive:
+    src: "{{ OpenCart }}"
+    dest: /data/wwwroot/opencart1
+    owner: apache
+    group: apache
+    remote_src: yes
+
+- name: Download Opencart language package
+  unarchive:
+    src: "{{ opencart_package_CN }}"
+    dest: /opt
+    owner: apache
+    group: apache
+    remote_src: yes
+  when: language == "cn"
+
+- name: move language sql to opencart source directory
+  shell: mv -f /opt/opencart/upload/install/opencart.sql /data/wwwroot/opencart1/upload/install/
+  when: language == "cn"
+
+- name: delete sql file
+  file:
+    path: /opt/opencart/upload/install/opencart.sql
+    state: absent
+  when: language == "cn"
+
+- name: move language package to opencart source code
+  shell: cp -rf /opt/opencart/upload/* /data/wwwroot/opencart1/upload/
+  when: language == "cn"
+
+- name: delete language package
+  file: 
+    path: /opt/opencart
+    state: absent
+  when: language == "cn"
+
+- name: Create opencart directory
+  file:
+    path: /data/wwwroot/opencart
+    state: directory
+    owner: apache
+    group: apache
+    mode: 0750
+
+- name: move upload directory to opencart 
+  shell: mv /data/wwwroot/opencart1/upload/* /data/wwwroot/opencart
+
+
+- name: delete opencart1 directory
+  file: 
+    path: /data/wwwroot/opencart1
+    state: absent
+
+
+- name: Rename config-dist.php to config-dist.php
+  shell: cp /data/wwwroot/opencart/config-dist.php /data/wwwroot/opencart/config.php
+  
+- name: Rename admin/config-dist.php to config-dist.php
+  shell: cp /data/wwwroot/opencart/admin/config-dist.php /data/wwwroot/opencart/admin/config.php
+ 
+
+  
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Create OpenCart databases
+  mysql_db:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: opencart
+    state: present
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["OpenCart"];'
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

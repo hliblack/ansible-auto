@@ -1,0 +1,91 @@
+---
+# 系统更新
+- name: System Upgrade
+  yum: name=* state=latest
+
+- name: cerate directory
+  file:
+    path: /data/wwwroot/vanilla
+    state: directory
+
+# 下载源文件
+- name: Download vanilla
+  unarchive:
+    src: "{{ vanilla }}"
+    dest: /data/wwwroot/vanilla
+    remote_src: yes
+    owner: apache
+    group: apache
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Copy Apache Vhost Configuration
+  template: src=vhost.conf dest=/etc/httpd/vhost/
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: replace my.cnf
+  template:
+    src: my.cnf
+    dest: /etc/my.cnf
+    mode: 0755
+
+- name: restart mysql
+  service: name=mysqld state=restarted enabled=yes
+
+- name: Obtain mysql root's password
+  shell: cat /credentials/password.txt | awk 'NR==2' |awk -F ":" '{print $2}'
+  register: mysql_root_password
+
+- name: Create vanilla databases
+  mysql_db:
+    login_user: root
+    login_password: "{{ mysql_root_password.stdout }}"
+    name: vanilla
+    state: present
+
+- name: Create database user with name 'vanilla' and random password with 'vanilla' database privileges
+  mysql_user:
+    login_user: root
+    login_password: "{{ mysql_root_password.stdout }}"
+    name: vanilla
+    password: "{{ mysql_root_password.stdout }}"
+    priv: 'vanilla.*:ALL'
+    state: present
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/init.sh
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750
+
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["Vanilla"];'
+
+
+
+- name: Permission directory & files
+  shell: |
+    chown apache. -R /data/wwwroot
+    find /data/wwwroot -type d -exec chmod 750 {} \;
+    find /data/wwwroot -type f -exec chmod 640 {} \;
+  
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+

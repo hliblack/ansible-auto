@@ -1,0 +1,41 @@
+---
+- name: Replace php.ini
+  template:
+    src: php.ini.j2
+    dest: /etc/php/7.2/cli/php.ini
+    owner: root
+    group: root
+
+- name: enabled rewrite proxy_fcgi
+  shell: |
+    a2enmod rewrite proxy_fcgi
+    systemctl restart apache2
+
+- name: Get mysql database root password
+  shell: cat /credentials/password.txt | awk 'NR==2' |awk -F ":" '{print $2}'
+  register: mysql_password
+
+- name: Create akeneo database
+  mysql_db:
+    name: akeneo
+    state: present
+    login_user: root
+    login_password: "{{mysql_password}}"
+
+- name: Create akeneo database user
+  mysql_user:
+    name: akeneo
+    password: "{{mysql_password}}"
+    priv: 'akeneo.*:ALL'
+    state: present
+    login_user: root
+    login_password: "{{mysql_password}}"
+
+- name: Replace default apache configuration file 
+  template:
+    src: 000-default.conf.j2
+    dest: /etc/apache2/sites-available/000-default.conf
+    owner: root
+    group: root
+    mode: 0644
+

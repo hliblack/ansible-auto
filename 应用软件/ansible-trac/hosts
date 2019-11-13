@@ -1,0 +1,3 @@
+[trac]
+159.138.29.236    ansible_ssh_user=root  ansible_ssh_pass=Qwer1234
+35.175.245.213 ansible_ssh_user=ubuntu 

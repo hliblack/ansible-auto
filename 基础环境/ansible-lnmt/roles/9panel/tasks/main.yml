@@ -1,0 +1,45 @@
+---
+
+- name: Create apps directory
+  file: 
+      path: /data/apps
+      state: directory
+      owner: www
+      group: www
+
+- name: Download 9panel
+  git:
+    repo: https://github.com/Websoft9/9panel.git
+    dest: /data/apps/9panel
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_infrastructure="LAMP";'
+    line: 'var set_infrastructure="Java(Linux)";'
+
+- name: Set default site I
+  shell: cp -rp /data/apps/9panel/*  /data/wwwroot/www.example.com
+
+- name: Set default site II
+  file:
+    path: "/data/wwwroot/www.example.com/{{ item }}"
+    state: absent
+  with_items:
+    - db.html
+    - ftp.html
+    - index.html
+    - tools.html
+
+- name: Set default site III
+  command: mv /data/wwwroot/www.example.com/example.html /data/wwwroot/www.example.com/index.html
+
+- name: Change apps directory Own
+  file: 
+      path: /data/apps
+      owner: www
+      group: www
+      recurse: yes
+
+- name: restart tomcat
+  service: name=tomcat state=restarted enabled=yes

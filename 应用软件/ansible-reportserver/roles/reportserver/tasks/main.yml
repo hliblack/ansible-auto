@@ -1,0 +1,111 @@
+---
+- include_vars: ../../mysql/defaults/main.yml
+
+- name: Install Oracle JAVA
+  apt:
+    name: openjdk-8-jdk
+
+- name: Setting JRE Securerandom
+  lineinfile:
+    path: /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
+    regexp: 'securerandom.source=file:/dev/random'
+    line: 'securerandom.source=file:/dev/./urandom'
+
+- name: Install tomcat
+  apt:
+    name: tomcat8
+
+- name: Setting tomcat 
+  copy:
+    src: catalina.sh
+    dest: /usr/share/tomcat8/bin
+    mode: 0755
+
+- name: Create Date Directory
+  file:
+    path: /data/
+    state: directory
+
+
+
+- name: Create ReportServer Directory
+  file:
+    path: /data/wwwroot/reportserver
+    state: directory
+    owner: tomcat8
+    group: tomcat8
+
+- name: Change tomcat webapp Directory
+  copy:
+    src: server.xml
+    dest: /etc/tomcat8/
+  notify: restart tomcat8
+
+- name: Download ReportServer
+  unarchive:
+    src: '{{reportserver_url}}'
+    dest: /data/wwwroot/reportserver
+    remote_src: yes
+    owner: tomcat8
+    group: tomcat8
+
+- name: Create databases 
+  mysql_db:
+    name: reportserver
+    login_user: root
+    login_password: '{{mysql_password}}'
+    state: import
+    target: /data/wwwroot/reportserver/ddl/reportserver-RS3.0.7-6008-schema-MySQL5_CREATE.sql
+
+- name: Setup database connection
+  template:
+    src: persistence.properties
+    dest: /data/wwwroot/reportserver/WEB-INF/classes
+    owner: tomcat8
+    group: tomcat8
+
+
+- name: Setting rc.local
+  file:
+    path: /etc/rc.local
+    state: touch
+    mode: 0750
+
+- name: Write rc.local
+  shell: echo "#!/bin/bash" > /etc/rc.local
+
+- name: restart rc.local
+  service: name=rc.local state=restarted enabled=yes
+
+
+- name: Create credentials Folder
+  file:
+    path: /credentials
+    state: directory
+
+- name: Create Password doc
+  file:
+    path: /credentials/password.txt
+    mode: 644
+    state: touch
+
+- name: Write Databases Password
+  shell: echo -e 'MySQL username:root\nMySQL Password:'{{mysql_password}}  > /credentials/password.txt
+
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750
+
+
+- name: Setting Owner and Group 
+  shell: chown -R tomcat8. /data/wwwroot

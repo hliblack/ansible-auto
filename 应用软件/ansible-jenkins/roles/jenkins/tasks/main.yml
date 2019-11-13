@@ -1,0 +1,27 @@
+---
+- name: Install OpenJDK JAVA
+  apt:
+    name: openjdk-8-jdk
+
+- name: Setting JRE Securerandom
+  lineinfile:
+    path: /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
+    regexp: 'securerandom.source=file:/dev/random'
+    line: 'securerandom.source=file:/dev/./urandom'
+
+- name: Add an Apt signing jenkins key
+  apt_key:
+    url: https://pkg.jenkins.io/debian/jenkins.io.key
+    state: present
+
+- name: Add jenkins repository 
+  apt_repository:
+    repo: deb https://pkg.jenkins.io/debian-stable binary/
+    state: present
+    filename: jenkins
+
+- name: Install jenkins
+  apt:
+    name: jenkins
+  notify: restart jenkins
+

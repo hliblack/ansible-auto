@@ -1,0 +1,12 @@
+---
+- name: Pimcore
+  hosts: all
+  become: yes
+  become_user: root
+  become_method: sudo
+  remote_user: '{{admin_username}}'
+
+  roles:
+    - { role: preinstall, tags: "preinstall" }
+    - { role: pimcore, tags: "pimcore" }
+    - { role: end, tags: "end" }

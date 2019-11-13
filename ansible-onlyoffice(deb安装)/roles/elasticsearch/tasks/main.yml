@@ -1,0 +1,29 @@
+---
+- name: add elasticsearch key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    id: D88E42B4
+    state: present
+
+- name: Install dependence
+  apt:
+    name: [apt-transport-https, openjdk-8-jdk]
+    state: latest
+
+- name: add elasticsearch repostory
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/6.x/apt stable main
+    state: present
+    filename: /etc/apt/sources.list.d/elastic-6.x.list
+    update_cache: yes
+
+- name: Install elasticsearch 
+  apt:
+    name: elasticsearch
+    state: present
+
+- name: start elasticsearch
+  service:
+    name: elasticsearch
+    state: started
+    enabled: yes

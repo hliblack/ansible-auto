@@ -1,0 +1,88 @@
+- name: upgrade pip
+  shell: pip install --upgrade pip
+
+- name: install subversion python-dev libmysqlclient-dev python-pexpect
+  apt: 
+    name: [subversion, python-dev, libmysqlclient-dev, python-pexpect, python-passlib]
+    state: latest
+    update-cache: yes
+
+- name: install other Python Packages 
+  pip:
+    name: [genshi, Babel, docutils, Pygments, pytz, gunicorn]
+    state: latest
+
+- name: install trac
+  pip:
+    name: [trac, mysql-python]
+    state: latest
+
+
+- name: create database
+  mysql_db:
+    login_user: root 
+    login_password: 123456
+    name: trac
+    encoding: 'utf8'
+    collation: 'utf8_bin'
+    state: present
+
+- name: Create Project Environment
+  expect:
+    command: trac-admin /data/wwwroot/trac initenv 
+    responses:
+        "Project Name": "trac"
+        "Database connection string": "mysql://root:123456@localhost:3306/trac"
+   
+- name: create tracwsgi.py
+  template:
+    src: tracwsgi.py
+    dest: /data/wwwroot/trac/tracwsgi.py
+    mode: 0640
+
+- name: generate user and password
+  htpasswd:
+    path: /etc/nginx/conf.d/users
+    name: admin
+    password: admin
+    owner: root
+    group: root
+    mode: 0640
+
+- name: create trac.service
+  template:
+    src: trac.service
+    dest: /lib/systemd/system/trac.service
+    mode: 0644
+  notify: start trac
+
+- name: copy trac's nginx configuration file
+  template:
+      src: default
+      dest: /etc/nginx/sites-available/default
+      mode: 0644
+  notify: restart nginx
+
+- name: Grant authorization to admin
+  shell: trac-admin /data/wwwroot/trac permission add admin TRAC_ADMIN
+
+    
+- name: install usermanager plugin
+  pip:
+    name: TracAccountManager
+    executable: pip2
+
+- name: replace trac.ini
+  copy:
+    src: trac.ini
+    dest: /data/wwwroot/trac/conf/
+    mode: 0640
+  notify: restart nginx
+
+
+
+- name: Setting File Permission
+  shell: find /data/* -type f -exec chmod 640 {} \;
+
+- name: Setting Directory Permission
+  shell: find /data/* -type d -exec chmod 750 {} \; 

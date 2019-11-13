@@ -1,0 +1,15 @@
+---
+- name: wamp
+  hosts: all
+  become: yes
+  become_user: administrator
+  become_method: runas
+
+  vars:
+    ansible_become_password: Qwerty123456
+
+  roles:
+    - { role: common, tags: "common" }
+    - { role: wamp, tags: "wamp" }
+    - { role: 9panel, tags: "9panel" }
+    - { role: sysprep, tags: "sysprep"}

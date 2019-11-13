@@ -1,0 +1,104 @@
+---
+# Moodle-LMS
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+
+- name: Create Directory
+  file:
+    path: /data/wwwroot/moodle
+    state: directory
+    owner: apache
+    group: apache
+    mode: 0755
+  
+- name: Download Moodle-LMS
+  git:
+    repo: https://github.com/moodle/moodle.git
+    dest: /data/wwwroot/moodle
+
+- name: get root's password of mysql
+  shell: cat /credentials/password.txt | awk 'NR==2' |awk -F ":" '{print $2}'
+  register: mysql_password
+
+- name: Create moodle database
+  mysql_db:
+    name: moodle
+    state: present
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+
+- name: Create database user for moodle
+  mysql_user:
+    name: moodle
+    password: "{{mysql_password.stdout}}"
+    priv: '*.*:ALL'
+    state: present
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+
+- name: Copy password.txt to /credentials
+  template: src=password.txt.jinja2  dest=/credentials/password.txt
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+
+# 9panel
+- name: Create /data/apps/9panel
+  file:
+    path: /data/apps/9panel
+    state: directory
+
+- name: Download 9panel
+  git:
+    repo: https://github.com/Websoft9/9panel.git
+    dest: /data/apps/9panel
+
+- name: Enabled 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["Moodle"];'
+
+- name: Copy 9panel.conf to /etc/httpd/conf.d
+  template:
+    src: 9panel.conf.j2
+    dest: /etc/httpd/conf.d/9panel
+    mode: 0644
+
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: change permission of /data/wwwroot
+  file:
+    path: "{{item}}"
+    owner: apache
+    group: apache
+    recurse: yes
+  with_items:
+    - /data/wwwroot
+    - /data/apps
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 750 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

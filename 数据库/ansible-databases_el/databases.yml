@@ -1,0 +1,18 @@
+---
+- name: databases
+  hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  roles:
+    - {role: common , tags: "common"} 
+    - {role: mysql,tags: mysql}
+    - {role: mariadb,tags: mariadb}
+    - {role: postgresql, tags: postgresql}
+    - {role: mongodb, tags: mongodb}
+    - {role: redis, tags: redis}
+    - {role: docker, tags: docker}
+    - {role: docker_adminmongo, tags: docker_adminmongo}
+    - {role: docker_phpmyadmin, tags: docker_phpmyadmin}
+    - {role: docker_phppgadmin, tags: docker_phppgadmin}

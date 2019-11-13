@@ -1,0 +1,17 @@
+---
+- name: LNMP
+  hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+  remote_user: '{{admin_username}}'
+
+  roles:
+    - { role: common , tags: "common"} 
+    - { role: nginx_for_php , tags: "nginx_for_php"}
+    - { role: php-fpm , tags: "php-fpm"}
+    - { role: mysql , tags: "mysql"}
+    - { role: phpmyadmin , tags: "phpmyadmin"}
+    - { role: 9panel , tags: "9panel"}
+    - { role: other , tags: "other"}
+    - { role: end , tags: "end"}

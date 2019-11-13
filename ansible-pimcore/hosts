@@ -1,0 +1,2 @@
+[server]
+52.234.231.167  ansible_ssh_user=websoft9  ansible_ssh_pass=Qwer12345678 ansible_sudo_pass=Qwer12345678

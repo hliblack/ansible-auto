@@ -1,0 +1,39 @@
+---
+- name: iredmail
+  hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+  remote_user: '{{admin_username}}'
+  gather_facts: False
+  pre_tasks:
+   - name: 'install python'
+     raw: 'sudo apt-get -y install python'
+
+
+- name: iredmail
+  hosts: all
+  become: yes
+  become_method: sudo
+  become_user: root
+  remote_user: '{{admin_username}}'
+  tasks:
+
+  # - import_tasks: common.yml
+
+  - name: download iredmail package
+    unarchive:
+      src: https://bitbucket.org/zhb/iredmail/downloads/iRedMail-0.9.9.tar.bz2
+      dest: /root
+      remote_src: yes
+
+  - name: Change Folder name
+    shell: mv /root/iRedMail-0.9.9 /root/iredmail
+
+  - name: change script
+    file:
+      path: /root/iredmail/iRedMail.sh
+      mode: 750
+
+
+

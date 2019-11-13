@@ -1,0 +1,8 @@
+---
+- name: app
+  hosts: all
+  remote_user: root
+
+  roles:
+    - { role: wordpress , tags: "wordpress"} 
+    - { role: wordpress-discuz , tags: "wordpress-discuz" }

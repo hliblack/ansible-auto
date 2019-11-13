@@ -1,0 +1,18 @@
+## 服务器前置任务（ubuntu使用）
+- name: onlyoffice
+  hosts: onlyoffice
+  become: yes
+  become_method: sudo
+  gather_facts: False
+  pre_tasks:
+    - name: Install Python
+      raw: sudo apt-get install python -y
+
+## 部署
+- name: onlyoffice
+  hosts: onlyoffice
+  become: yes
+  become_method: sudo
+  roles:
+    - {role: common, tags: "common"}
+    - {role: onlyoffice, tags: "onlyoffice"}

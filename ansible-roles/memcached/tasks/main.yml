@@ -1,0 +1,45 @@
+- name: Install memcached
+  apt: 
+    name: memcached
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install memcached
+  yum: 
+    name: memcached
+  when: ansible_distribution == 'CentOS'
+
+  
+- name: Start memcached
+  service:
+    name: memcached
+    enabled: yes
+    state: restarted
+
+
+- name: Check Memcached Version
+  shell: yum info memcached | grep Version
+  register: memcached_ver_centos
+  notify: Memcached Version for Centos
+  when: ansible_distribution == 'CentOS'
+
+- name: Check Memcached Version
+  shell: apt-cache show memcached | grep Version | head -n1
+  register: memcached_ver_ubuntu
+  notify: Memcached Version for Ubuntu
+  when: ansible_distribution == 'Ubuntu'
+
+
+- name: Create a Memcached symbolic link
+  file:
+    src: /etc/memcached.conf
+    dest: /data/config/memcached.conf
+    state: link
+  when: ansible_distribution == 'Ubuntu'
+
+
+- name: Create a Memcached symbolic link
+  file:
+    src: /etc/sysconfig/memcached
+    dest: /data/config/memcached.conf
+    state: link
+  when: ansible_distribution == 'CentOS'

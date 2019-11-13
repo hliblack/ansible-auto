@@ -1,0 +1,117 @@
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+
+- name: Get MySQL Password
+  shell: cat /credentials/password.txt | awk 'NR==2' |awk -F ":" '{print $2}'
+  register: mysql_password
+  
+# System Upgrade
+- name: System Upgrade
+  yum: name=* state=latest
+
+- name: Create Folder
+  file:
+    path: /data/wwwroot/resourcespace
+    state: directory
+    mode: 0750
+
+- name: Download ResourceSpace
+  unarchive:
+    src: "{{ ResourceSpace }}"
+    dest: /data/wwwroot/resourcespace
+    owner: apache
+    group: apache
+    mode: 0750
+    remote_src: yes
+
+- name: Remove Example Folder
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Install other nesscessary software
+  yum:
+    name: [subversion, ghostscript, ImageMagick, poppler, ]
+    state: latest
+
+- name: Install CERT-Forensics-Tool -1 
+#  shell: wget -O https://forensics.cert.org/cert-forensics-tools-release-el7.rpm ~/cert-forensics-tools.rpm
+  get_url:
+      url: https://forensics.cert.org/cert-forensics-tools-release-el7.rpm
+      dest: /root/cert-forensics-tools.rpm
+      mode: 0644
+
+- name: Install CERT-Forensics-Tool -2
+  shell: rpm -i /root/cert-forensics-tools.rpm
+
+- name: Remove cert-forensics-tools.rpm
+  file:
+    path: ~/cert-forensics-tools.rpm
+    state: absent
+
+- name: Install CERT-Forensics-Tool -3
+  yum:
+    name: CERT-Forensics-Tools
+    state: latest
+    skip_broken: yes
+
+- name: change php.ini
+  template:
+    src: php.ini 
+    dest: /etc/php.ini
+    owner: root
+    group: root
+    mode: 0640
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["ResourceSpace"];'
+
+- name: Create database 
+  mysql_db:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: resourcespace
+    state: present
+
+- name: Create filestore directory
+  file:
+      path: /data/wwwroot/resourcespace/filestore
+      state: directory
+      mode: 0750
+
+- name: Remove other unnecessesary package
+  yum:
+    autoremove: yes
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 755 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 644 {} \;
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

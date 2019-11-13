@@ -1,0 +1,3 @@
+remote_user: root
+cloud: azure
+nodejs_ver: 8

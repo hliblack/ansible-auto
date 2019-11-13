@@ -1,0 +1,115 @@
+---
+# Magento 
+
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+  
+- name: Get MySQL Password
+  shell: cat /credentials/password.txt | awk 'NR==2' |awk -F ":" '{print $2}'
+  register: mysql_password
+
+- name: mkdir folder name
+  file: 
+    path: /data/wwwroot/magento
+    state: directory
+    mode: 0755
+
+- name: Upload composer  authentication keys
+  copy:
+    src: .config
+    dest: /root/
+
+
+- name: Download Magento
+  shell: |
+    composer create-project --repository=https://repo.magento.com/ magento/project-community-edition /data/wwwroot/magento
+    chown -R apache. /data/wwwroot/magento
+
+
+- name: Delete composer  authentication keys
+  file:
+    path: /root/.config/composer/auth.json
+    state: absent
+
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Create Magento databases
+  mysql_db:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: magento
+    state: present
+
+- name: Add cron job for magento
+  cron:
+    name: magento
+    user: apache
+    job: "/usr/bin/php /data/wwwroot/magento/bin/magento cron:run | grep -v 'Ran jobs by schedule' >> /data/wwwroot/magento/var/log/magento.cron.log" 
+        
+- name: Add cron job for magento
+  cron:
+    name: magento1
+    user: apache
+    job: "/usr/bin/php /data/wwwroot/magento/update/cron.php >> /data/wwwroot/magento/var/log/update.cron.log"
+
+- name: Add cron job for magento
+  cron:
+    name: magento2
+    user: apache
+    job: "/usr/bin/php /data/wwwroot/magento/bin/magento setup:cron:run >> /data/wwwroot/magento/var/log/setup.cron.log"
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+
+- name: Upload htaccess
+  copy:
+    src: .htaccess
+    dest: /data/wwwroot/magento/
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["Magento"];'
+
+- name: Remove default language dir
+  file:
+    path: /data/wwwroot/magento/vendor/magento/language-zh_hans_cn/
+    state: absent
+
+- name: Download language package
+  unarchive:
+    src: "{{ mogento_package_CN }}"
+    dest: /data/wwwroot/magento/vendor/magento/
+    remote_src: yes
+
+- name: Permission directory
+  shell: find /data/wwwroot -type d -exec chmod 755 {} \;
+  
+- name: Permission file
+  shell: find /data/wwwroot -not -type d -exec chmod 644 {} \;
+  
+- name: System Upgrade
+  yum: name=* state=latest
+
+- name: Databases Random Password
+  copy: 
+    src: init.sh
+    dest: /root/
+    mode: 0750
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

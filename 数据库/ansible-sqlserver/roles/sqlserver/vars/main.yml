@@ -1,0 +1,4 @@
+# 版本
+sqlserver_ver: 2012
+# 语言，参数范围{ENU, CHS}
+language: ENU

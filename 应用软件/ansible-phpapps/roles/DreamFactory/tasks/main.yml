@@ -1,0 +1,91 @@
+---
+# DreamFactory
+
+- name: install pexpect
+  pip:
+    name: pexpect
+    state: latest
+
+- name: Get MySQL Password
+  shell: cat /credentials/password.txt | awk 'NR==2' |awk -F ":" '{print $2}'
+  register: mysql_password
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Create DreamFactory databases
+  mysql_db:
+    login_user: root
+    login_password: "{{mysql_password.stdout}}"
+    name: dreamfactory
+    state: present
+
+- name: Install composer
+  yum: 
+    name: composer
+    state: latest
+
+- name: Replace Composer repo.packagist to internal repo.packagist
+  shell: composer config -g repo.packagist composer https://packagist.phpcomposer.com
+
+- name: Download DreamFactory Source Code
+  git:
+    repo: https://github.com/dreamfactorysoftware/dreamfactory/
+    dest: /data/wwwroot/dreamfactory
+
+- name: install DreamFactory -1 composer
+  composer:
+    command: install
+    ignore-platform-reqs: yes
+    working_dir: /data/wwwroot/dreamfactory
+
+- name: install DreamFactory -2 php artisan df:env
+  expect:
+    command: php artisan df:env
+    chdir: /data/wwwroot/dreamfactory
+    responses:
+      'tables': "1"
+      'Host': "localhost"
+      'Port': "3306"
+      'name': "dreamfactory"
+      'username': "root"
+      'password': "{{mysql_password.stdout}}"
+      'Re-enter': "{{mysql_password.stdout}}"
+    echo: yes
+
+- name: install DreamFactory -3 php artisan df:setup
+  expect:
+    command: php artisan df:setup
+    chdir: /data/wwwroot/dreamfactory
+    responses:
+      'first name': "dream"
+      'last name': "factory"
+      'email address': "admin@admin.com"
+      'Choose': "admin123"
+      'Re-enter': "admin123"
+    echo: yes
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost/
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["DreamFactory"];'
+
+
+- name: Permission directory & file
+  shell: |
+    find /data/wwwroot -type d -exec chmod 750 {} \;
+    find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest
+      

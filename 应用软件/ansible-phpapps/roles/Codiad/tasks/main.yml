@@ -1,0 +1,65 @@
+---
+# Codiad
+- name: Get WebServer
+  shell: nginx -v
+  register: nginx_ver
+  ignore_errors: yes
+
+- name: Download Codiad
+  git:
+    repo: https://github.com/Codiad/Codiad.git
+    dest: /data/wwwroot/codiad
+
+- name: Remove example dir
+  file:
+    path: /data/wwwroot/www.example.com
+    state: absent
+
+- name: Copy Apache Config
+  template: src=vhost.conf dest=/etc/httpd/vhost
+
+- name: restart Apache
+  service: name=httpd state=restarted enabled=yes
+
+- name: Enable 9panel I
+  lineinfile:
+    path: /data/apps/9panel/js/websoft9.js
+    regexp: 'var set_apps=\["Example"\];'
+    line: 'var set_apps=["Codiad"];'
+
+
+
+- name: Permission directory & files
+  shell: |
+    find /data/wwwroot -type d -exec chmod 750 {} \;
+    find /data/wwwroot -not -type d -exec chmod 640 {} \;
+
+- name: System Upgrade
+  yum: name=* state=latest
+
+################设置随机密码######################
+
+- name: Get MySQL Version
+  command: mysql -V
+  register: mysql_version
+
+- name: Databases Random Password for mysql5.7
+  copy: 
+    src: init-57.sh
+    dest: /root/init.sh
+    mode: 0750
+  when: (mysql_version.stdout.find('5.7') != -1) or (mysql_version.stdout.find('8.0') != -1)
+
+- name: Databases Random Password for mysql5.6
+  copy: 
+    src: init-56.sh
+    dest: /root/init.sh
+    mode: 0750
+  when: (mysql_version.stdout.find('5.5') != -1) or (mysql_version.stdout.find('5.6') != -1)
+
+- name: Setting Startup
+  lineinfile:
+    path: /etc/rc.d/rc.local
+    regexp: '/root/init.sh'
+    line: '/root/init.sh'
+    mode: 0750

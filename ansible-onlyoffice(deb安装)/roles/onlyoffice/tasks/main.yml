@@ -1,0 +1,21 @@
+---
+- name: add PGP KEY
+  apt_key:
+    keyserver: hkp://keyserver.ubuntu.com:80
+    id: CB2DE8E5
+
+# - name: add onlyoffice repostory
+#   apt_repository:
+#     repo: deb https://download.onlyoffice.com/repo/debian squeeze main
+#     state: present
+#     filename: /etc/apt/sources.list.d/onlyoffice.list
+#     update_cache: yes
+
+- name: add onlyoffice repostory
+  shell: sudo echo "deb https://download.onlyoffice.com/repo/debian squeeze main" | sudo tee /etc/apt/sources.list.d/onlyoffice.list
+
+# - name: Install OnlyOffice 
+#   apt:
+#     name: onlyoffice-communityserver
+#     state: latest
+#     update_cache: yes

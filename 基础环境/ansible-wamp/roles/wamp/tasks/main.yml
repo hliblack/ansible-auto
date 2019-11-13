@@ -1,0 +1,86 @@
+# ---
+# - name: Create tampority directory
+#   win_file:
+#     path: C:\temp
+#     state: directory
+
+# - name: Download WAMP
+#   win_get_url:
+#     url: "{{WAMP72}}"
+#     dest: C:\temp\wamp.exe
+
+# - name: Create websoft9 directory
+#   win_file:
+#     path: C:\websoft9\wampstack
+#     state: directory
+
+# - name: Install WAMP
+#   win_shell: C:\temp\wamp.exe --mode unattended --installer-language zh-CN  --prefix C:\websoft9\wampstack --mysql_password {{mysql_password}} --launch_cloud 0
+
+## 更换 phpMyAdmin 配置文件
+- name: Replace phpmyadmin.conf
+  win_template:
+    src: httpd-app.conf.j2
+    dest: C:\websoft9\wampstack\apps\phpmyadmin\conf\httpd-app.conf
+
+- name: start apache & mysql
+  win_service:
+    name: "{{item}}"
+    start_mode: auto
+    state: started
+  with_items:
+    - wampstackApache
+    - wampstackMySQL
+
+## 添加环境变量
+- name: add apache & mysql path environment variables
+  win_path:
+    elements:
+      - 'C:\websoft9\wampstack\apache2\bin'
+      - 'C:\websoft9\wampstack\mysql\bin'
+      - 'C:\websoft9\wampstack\php'
+
+## 创建密码文件
+- name: Create Credentials Directory
+  win_file:
+    path: C:\Credentials\
+    state: directory
+
+- name: Copy password.txt to Credentials
+  win_template:
+    src: password.txt.j2
+    dest: C:\Credentials\password.txt
+
+## 修改apache配置文件
+- name: Create c:\wwwroot directory
+  win_file:
+    path: c:\wwwroot
+    state: directory
+
+- name: change httpd-vhsot.conf file
+  win_template:
+    src: bitnami-apps-vhosts.conf.j2
+    dest: C:\websoft9\wampstack\apache2\conf\bitnami\bitnami-apps-vhosts.conf
+
+#　Restart Service
+- name: Restart apache & mysql
+  win_service:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+    - wampstackApache
+    - wampstackMySQL
+
+# 创建快捷方式
+- name: Create wampserver's lnk in public desktop
+  win_shortcut:
+    src: C:\websoft9\wampstack\manager-windows.exe
+    dest: C:\Users\Public\Desktop\Bitname-Wampstack.lnk
+    directory: C:\websoft9\wampstack
+
+- name: Create password.txt's lnk in public desktop
+  win_shortcut:
+    src: C:\Credentials\password.txt
+    dest: C:\Users\Public\Desktop\password.lnk
+    directory: C:\websoft9\wampserver
+

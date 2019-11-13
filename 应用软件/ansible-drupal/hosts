@@ -1,0 +1,5 @@
+[local]
+localhost
+
+[drupal]
+40.114.74.167 ansible_ssh_user=websoft9 ansible_ssh_pass=Qwerty123456 ansible_sudo_pass=Qwerty123456

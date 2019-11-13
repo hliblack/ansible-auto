@@ -1,0 +1,5 @@
+[local]
+127.0.0.1
+
+[Odoo]
+39.100.15.192  ansible_ssh_user=root  ansible_ssh_pass=Suzhoufeiyu1818  ansible_sudo_pass=Suzhoufeiyu1818

@@ -1,0 +1,4 @@
+metabase_db_name: metabase
+metabase_db_user: metabase
+metabase_db_password: websoft9
+metabase_ver: v0.33.0

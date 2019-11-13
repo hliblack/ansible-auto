@@ -1,8 +1,6 @@
 - name: gogs
   hosts: all
-  become: yes
-  become_method: sudo
-  become_user: root
+  remote_user: root
 
   roles:
     - { role: common, tags: "common" }

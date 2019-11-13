@@ -23,7 +23,7 @@
 - block:
   - name: Install erpnext
     expect:
-      command: sudo python install.py --production --user frapper
+      command: sudo python /root/install.py --production --user frapper
       responses: 
         "mysql": "{{mysql_password}}"
         'Administrator': 'admin'   
@@ -32,7 +32,7 @@
   rescue:
    - name: Install erpnext
      expect:
-      command: sudo python install.py --production --user frapper
+      command: sudo python /root/install.py --production --user frapper
       responses: 
         "mysql": "{{mysql_password}}"
         'Administrator': 'admin'   
@@ -74,15 +74,19 @@
 - name: restart rc.local
   service: name=rc.local state=restarted enabled=yes
 
+- name: Create credentials Folder
+  file:
+    path: /credentials
+    state: directory
+
+- name: Create Password doc
+  file:
+    path: /credentials/password.txt
+    mode: 644
+    state: touch
 
 - name: Write Databases Password
-  shell: echo 'Databases root Password:'{{mysql_password}}  > /root/password.txt
-
-- name: Password Text File Permission
-  file:
-    path: /root/password.txt
-    mode: 0640
-
+  shell: echo -e 'MySQL username:root\nMySQL Password:'{{mysql_password}}  > /credentials/password.txt
 
 - name: Databases Random Password
   copy: 
@@ -100,3 +104,8 @@
 
 - name: Setting File Permission
   shell: chown -R frapper. /home/frapper/.bench/bench.egg-info
+
+- name: del mysql Automatically generated for Debian scripts.
+  file:
+    path: /etc/mysql/debian.cnf
+    state: absent

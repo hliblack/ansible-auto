@@ -1,0 +1,10 @@
+- name: start trac
+  service:
+    name: trac
+    state: started
+    enabled: yes
+
+- name: restart nginx
+  service:
+      name: nginx
+      state: restarted
