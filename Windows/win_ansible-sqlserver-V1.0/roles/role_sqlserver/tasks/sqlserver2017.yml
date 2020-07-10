@@ -1,0 +1,24 @@
+---
+## 安装jdk1.8
+- name: install openjdk1.8
+  include: jdk.yml
+  
+## 解压
+- name: unzip {{sqlserver_name}}
+  win_shell:
+    .\{{sqlserver_name}}.exe /u /x:c:\temp\{{sqlserver_name}}
+  args:
+    chdir: C:\temp\
+
+## 安装
+- name: Copy ConfigurationFile.ini
+  win_template:
+    src: ConfigurationFile.ini.j2
+    dest: C:\temp\{{sqlserver_name}}\ConfigurationFile.ini
+
+- name: Install SQLServer2017
+  win_shell:
+    .\SETUP.exe /Q /IACCEPTSQLSERVERLICENSETERMS /ConfigrationFile=ConfigrationFile.ini
+  args:
+    chdir: C:\temp\{{sqlserver_name}}
+  become: yes

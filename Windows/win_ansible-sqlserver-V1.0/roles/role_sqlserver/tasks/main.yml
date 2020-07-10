@@ -1,0 +1,47 @@
+# pre-installation
+- set_fact:
+    sqlserver_name: "{{sqlserver_meta[sqlserver_version].name}}"
+    sqlserver_download_url: "{{sqlserver_meta[sqlserver_version].download_url}}"
+    sqlserver_ssms_download: "{{ssms_download}}"
+
+# Download SQLServer
+- name: Create temporary directory
+  win_file:
+    path: C:\temp
+    state: directory
+
+# # Install SQLserver
+# - name: Download SQLServer
+#   win_get_url:
+#     url: "{{sqlserver_download_url}}"
+#     dest: C:\temp\{{sqlserver_name}}.exe
+
+# - name: Set the region format to English United States
+#   win_region:
+#     unicode_language: en-US
+#   register: result
+
+# - win_reboot:
+#   when: result.restart_required
+
+- name: Install SQLServer{{sqlserver_version}}
+  include: sqlserver{{sqlserver_version}}.yml
+
+# - name: Set the unicode language to Chinese, reboot if required
+#   win_region:
+#     unicode_language: zh-CN
+#   register: result
+
+# - win_reboot:
+#   when: result.restart_required
+
+# Install SQLServer management studio when need
+# - name: Install sqlserver management studio for SQLServer{{sqlserver_version}}
+#   include: ssms.yml
+#   when: sqlserver_ssms_download != "" and sqlserver_ssms_download != False and sqlserver_ssms_download != none
+
+- name: delete c:/temp
+  win_file:
+    path: C:\temp\
+    state: absennt
+

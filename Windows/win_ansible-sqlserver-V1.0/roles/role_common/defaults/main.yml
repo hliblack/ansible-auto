@@ -1,0 +1,29 @@
+7zip_download: ftp://itadmin:24bKX2pr@10.30.1.168/ITS/TOOL/ZIP/7z1900CNx64.exe
+chrome_download: ftp://itadmin:24bKX2pr@10.41.69.1/ITS/System/Windows/Google/ChromeStandaloneSetup64.exe
+
+
+# vc++
+vc_meta:
+  vc2008:
+    id: vc++2008
+    url: https://artnj.zte.com.cn/artifactory/zxsecurity-release-generic/common/webinspect/%E5%AE%89%E8%A3%85%E5%8C%85/SQL%20Server%20Express/vcredist_2008_x64.exe
+    name: vc++2008.exe
+  vc2010:
+    id: vc++2010
+    url: https://artnj.zte.com.cn/artifactory/zxsecurity-release-generic/common/webinspect/%E5%AE%89%E8%A3%85%E5%8C%85/SQL%20Server%20Express/vcredist_2010_x64.exe
+    name: vc++2010.exe
+  vc2012:
+    id: vc++2012
+    url: https://artnj.zte.com.cn/artifactory/zxsecurity-release-generic/common/webinspect/%E5%AE%89%E8%A3%85%E5%8C%85/SQL%20Server%20Express/vcredist_2012_x64.exe
+    name: vc++2012.exe
+  vc2013:
+    id: vc++2013
+    url: https://artnj.zte.com.cn/artifactory/zxsecurity-release-generic/common/webinspect/%E5%AE%89%E8%A3%85%E5%8C%85/SQL%20Server%20Express/vcredist_2013_x64.exe
+    name: vc++2013.exe
+  vc++:
+    id: vc++2015
+    url: https://artnj.zte.com.cn/artifactory/zxsecurity-release-generic/common/webinspect/%E5%AE%89%E8%A3%85%E5%8C%85/SQL%20Server%20Express/vc_redist_2015_2019.x64.exe
+    name: vc++2015.exe
+
+# switch
+common_install_vc: True

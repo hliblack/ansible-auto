@@ -1,0 +1,38 @@
+---
+- name: webinspect
+  hosts: all
+  gather_facts: true
+  become: true
+  become_method: runas
+  become_user: administrator
+
+  vars_files:
+    - vars/main.yml
+
+  vars_prompt:
+    - name: 'sqlserver_choose'
+      prompt: "\nChoose serial number to install SQLServer Express \n
+      1: SQLServer Express 2012\n
+      2: SQLServer Express 2014\n
+      3: SQLServer Express 2016\n
+      4: SQLServer Express 2017\n
+      5. SQLServer Express 2019\n"
+      private: no
+      default: 3
+  vars:
+    select_sqlserver_ver:
+      '1': "2012"
+      '2': "2014"
+      '3': "2016"
+      '4': "2017"
+      '5': "2019"
+    sqlserver_version: "{{select_sqlserver_ver[sqlserver_choose]}}"
+    
+  pre_tasks:
+    - debug:
+        msg: This playbook include [webinspect, sqlserver_exp_{{ sqlserver_version }}, IIS]
+
+  roles:
+    - { role: role_common, tags: "role_common" }
+    - { role: role_iis, tags: "role_iis" }
+    - { role: role_sqlserver, tags: "role_sqlserver" }

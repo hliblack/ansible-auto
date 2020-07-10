@@ -1,0 +1,11 @@
+all:
+  children:
+    windows:
+      hosts:
+        10.5.56.140:
+            ansible_user: Administrator
+            ansible_password: 1qaz@WSX-csa #填写服务器密码
+            ansible_port: 5985
+            ansible_connection: winrm
+            ansible_winrm_transport: ntlm  #必须有，不然会报错
+            ansible_winrm_server_cert_validation: ignore

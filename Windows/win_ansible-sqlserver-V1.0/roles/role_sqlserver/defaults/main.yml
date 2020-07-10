@@ -1,0 +1,41 @@
+# SQLServer Express Edition, 2005 | 2008 | 2012 |2014 | 2016 | 2017
+sqlserver_version: "2016"
+jdk_download_url: "https://artnj.zte.com.cn/artifactory/zxsecurity-release-generic/common/webinspect/%E5%AE%89%E8%A3%85%E5%8C%85/SQL%20Server%20Express/openjdk-1.8.0.222x86_64.msi"
+ssms_download: "https://artnj.zte.com.cn/artifactory/zxsecurity-release-generic/common/webinspect/%E5%AE%89%E8%A3%85%E5%8C%85/SQL%20Server%20Express/SSMS2016-Setup-CHS-SQL2016%E5%AE%A2%E6%88%B7%E7%AB%AF.exe"
+
+# SQLServer language
+# sqlserver_language: "ENU"
+
+# 2008SP2 page: https://www.microsoft.com/en-US/download/details.aspx?id=44278
+# 2012SP4 page:: https://www.microsoft.com/en-us/download/details.aspx?id=56042
+# 2014SP3 page:: https://www.microsoft.com/en-us/download/details.aspx?id=57473
+# 2016SP2 page:: https://www.microsoft.com/en-us/download/details.aspx?id=56840
+# 2017 page:: https://www.microsoft.com/en-US/download/details.aspx?id=44278
+
+sqlserver_meta:
+  "2012":
+    name: "SQLServer2012"
+    distribution: "SP4"
+    download_url: "https://download.microsoft.com/download/B/D/E/BDE8FAD6-33E5-44F6-B714-348F73E602B6/SQLEXPRADV_x64_ENU.exe"
+
+  "2014":
+    name: "SQLServer2014"
+    distribution: "SP3"
+    download_url: "https://download.microsoft.com/download/3/9/F/39F968FA-DEBB-4960-8F9E-0E7BB3035959/SQLEXPRADV_x64_ENU.exe"
+
+  "2016":
+    name: "SQLServer2016"
+    distribution: "SP2"
+    download_url: "https://artnj.zte.com.cn/artifactory/zxsecurity-release-generic/common/webinspect/%E5%AE%89%E8%A3%85%E5%8C%85/SQL%20Server%20Express/SQLEXPR_x64_CHS.exe"
+ 
+  "2017":
+    name: "SQLServer2017"
+    distribution: "SP1"
+    download_url: "https://download.microsoft.com/download/5/E/9/5E9B18CC-8FD5-467E-B5BF-BADE39C51F73/SQLServer2017-SSEI-Expr.exe"
+
+  "2019":
+    name: "SQLServer2019"
+    distribution: ""
+    download_url: "https://download.microsoft.com/download/7/f/8/7f8a9c43-8c8a-4f7c-9f92-83c18d96b681/SQL2019-SSEI-Expr.exe"
+
+

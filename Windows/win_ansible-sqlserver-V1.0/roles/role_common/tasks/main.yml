@@ -1,0 +1,73 @@
+---
+- name: Ping Test
+  win_ping:
+
+- name: Settings Firewall rule of defauls
+  win_firewall_rule:
+    name: "{{item.name}}"
+    localport: "{{item.port}}"
+    action: allow
+    direction: in
+    protocol: tcp
+    state: present
+    enabled: yes
+  with_items:
+    - {name: HTTP,port: '80'}
+    - {name: HTTPS,port: '443'}
+    - {name: FTP,port: '20,21'}
+    - {name: SQLServer,port: '1433'}
+
+- name: Add This-PC Desktop icon
+  win_regedit:
+    path: '{{item}}'
+    type: dword
+    name: "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
+    data: 00000000
+  with_items:
+    - HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel
+    - HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu
+
+- name: Create tampority directory
+  win_file:
+    path: C:\temp
+    state: directory
+
+- name: Copy 7zip
+  win_copy:
+    src: 7z.exe
+    dest: c:\temp\7z.exe
+
+- name: Install 7zip
+  win_package:
+    path: c:\temp\7z.exe
+    product_id: 7zip
+    state: present
+    arguments:
+      - /S
+
+- name: Download Chrome
+  win_get_url:
+    url: "{{chrome_download}}"
+    dest: C:\temp\
+
+- name: Install Chrome
+  win_package:
+    path: C:\temp\ChromeStandaloneSetup64.exe
+    product_id: Google Chrome
+    arguments:
+      - /silent
+      - /install
+
+- name: Download vc++
+  win_get_url:
+    url: "{{item.value.url}}"
+    dest: C:\temp\{{item.value.name}}
+  with_dict: "{{vc_meta}}"
+
+- name: Install vc++
+  win_package:
+    path: C:\temp\{{item.value.name}}
+    product_id: "{{item.value.id}}"
+    arguments: /q /NORESTART
+    state: present
+  with_dict: "{{vc_meta}}"
